@@ -15,6 +15,7 @@ const fragmentShader = `
   uniform float uTime;
   uniform vec2 uMouse;
   uniform float uLoadingPulse;
+  uniform float uReveal;
   
   varying vec2 vUv;
 
@@ -39,11 +40,9 @@ const fragmentShader = `
     // Compute wave position
     float angle = uTime * speed * frequency * -1.0 + (phaseShift + uv.x) * 2.0;
     
-    // Pulse effect while loading
-    float pulse = sin(uTime * 8.0) * 0.8 * uLoadingPulse;
-    
-    // Apply mouse influence to the amplitude, plus pulse
-    float waveY = sin(angle) * (amplitude + mouseInfluence + pulse) + verticalOffset;
+    // Apply mouse influence to the amplitude, and use uReveal to slide down on load
+    float revealOffset = (1.0 - uReveal) * 2.5; 
+    float waveY = sin(angle) * (amplitude + mouseInfluence) + verticalOffset + revealOffset;
     
     // Calculate distance and delta for the asymmetric XMB glow falloff
     float deltaY = waveY - uv.y;
@@ -69,19 +68,20 @@ const fragmentShader = `
   void main() {
     vec2 uv = vUv;
 
-    // Accumulate wave intensities
     float intensity = 0.0;
     
-    // Base waves (adjusted frequencies and amplitudes for a better look on screen)
     intensity += calcSine(uv, 0.2, 0.20, 0.2, 0.0, 0.5, 0.1, 15.0, false) * 0.9;
     intensity += calcSine(uv, 0.4, 0.40, 0.15, 0.0, 0.5, 0.1, 17.0, false) * 0.8;
     intensity += calcSine(uv, 0.3, 0.60, 0.15, 0.0, 0.5, 0.05, 23.0, false) * 0.7;
     
-    // Inverted falloff waves for complexity and contrast
     intensity += calcSine(uv, 0.1, 0.26, 0.07, 0.0, 0.3, 0.1, 17.0, true) * 1.0;
     intensity += calcSine(uv, 0.3, 0.36, 0.07, 0.0, 0.3, 0.1, 17.0, true) * 0.9;
     intensity += calcSine(uv, 0.5, 0.46, 0.07, 0.0, 0.3, 0.05, 23.0, true) * 0.8;
     intensity += calcSine(uv, 0.2, 0.58, 0.05, 0.0, 0.3, 0.2, 15.0, true) * 1.0;
+
+    // Light glow beating effect while loading
+    float glowPulse = 1.0 + (sin(uTime * 6.0) * 0.4 * uLoadingPulse);
+    intensity *= glowPulse;
 
     // Dynamic cold color shift logic
     // We create a slowly evolving mix of Blues, Cyans, and Purples
@@ -115,6 +115,7 @@ const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) }, // Start at center
       uLoadingPulse: { value: 1.0 }, // Starts pulsing
+      uReveal: { value: 0.0 }, // Starts hidden for transition
     }),
     []
   );
@@ -139,11 +140,17 @@ const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
       const time = state.clock.elapsedTime + (scrollY.current * 0.003);
       materialRef.current.uniforms.uTime.value = time;
       
-      // Loading pulse animation
+      // Cinematic slide down reveal animation
+      const currentReveal = materialRef.current.uniforms.uReveal.value;
+      if (currentReveal < 0.999) {
+        materialRef.current.uniforms.uReveal.value += (1.0 - currentReveal) * 0.025;
+      }
+      
+      // Loading glow beating animation
       const targetPulse = isAppLoading ? 1.0 : 0.0;
       materialRef.current.uniforms.uLoadingPulse.value += (targetPulse - materialRef.current.uniforms.uLoadingPulse.value) * 0.05;
       
-      // Trigger site reveal once pulsing settles down
+      // Trigger site reveal once loading is done and pulse settles
       if (!isAppLoading && materialRef.current.uniforms.uLoadingPulse.value < 0.01 && !hasRevealed.current) {
         hasRevealed.current = true;
         if (onRevealComplete) onRevealComplete();

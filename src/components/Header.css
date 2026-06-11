@@ -1,0 +1,111 @@
+.header-wrapper {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  z-index: 100;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 100px;
+}
+
+.header-wrapper.scrolled {
+  width: 70%;
+  max-width: 800px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-radius: 100px;
+  
+  /* Apple Music Liquid Glass */
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: #000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-links a:hover {
+  color: #000;
+  transform: scale(1.05);
+}
+
+.nav-cta {
+  text-decoration: none;
+  color: #fff;
+  background: #000;
+  padding: 0.6rem 1.5rem;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.nav-cta:hover {
+  background: #333;
+  transform: translateY(-2px);
+}
+
+/* Mobile Dock Navigation */
+@media (max-width: 768px) {
+  .header-wrapper {
+    top: auto;
+    bottom: 1.5rem;
+    width: max-content;
+    padding: 0;
+    /* Morph animation for dock */
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  
+  .header-wrapper.scrolled {
+    width: max-content;
+    /* Scale down slightly on scroll */
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .header {
+    padding: 0.8rem 2rem;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 168, 255, 0.2); /* Y2K glow on the dock */
+  }
+
+  .nav-links {
+    gap: 3.5rem; /* Space between icons */
+  }
+  
+  .nav-links a {
+    color: #111;
+  }
+}

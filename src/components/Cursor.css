@@ -1,0 +1,53 @@
+/* Hide default cursor across the entire app */
+body, a, button, input, textarea, .gallery-item {
+  cursor: none !important;
+}
+
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.cursor-svg {
+  position: absolute;
+  /* Offset so the tip of the triangle acts as the actual pointer hotspot */
+  top: -2px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  fill: rgba(255, 255, 255, 0.4);
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  
+  /* Use the dynamic wave color for the cursor glow! */
+  filter: drop-shadow(0 4px 15px var(--dynamic-glow-strong, rgba(0, 168, 255, 0.8)));
+  
+  transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1), 
+              fill 0.25s ease, 
+              stroke-width 0.25s ease;
+  transform-origin: center center;
+}
+
+/* Hover state on links/buttons: Morph the triangle */
+.custom-cursor.hovered .cursor-svg {
+  transform: scale(1.3) rotate(180deg);
+  fill: rgba(255, 255, 255, 0.1);
+  stroke-width: 1.5;
+}
+
+/* Click state: Pulse inwards */
+.custom-cursor.clicked .cursor-svg {
+  transform: scale(0.8) rotate(180deg);
+  fill: rgba(255, 255, 255, 0.8);
+}
+
+/* Fix text selection cursor (optional, but good for usability) */
+p, h1, h2, h3, h4, span {
+  cursor: text !important;
+}

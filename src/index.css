@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --accent-color: #000000;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+
+  --font-primary: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--text-secondary);
+}
+
+/* Utility Classes */
+.text-accent {
+  color: var(--text-secondary);
+}
+
+.section-padding {
+  padding: 6rem 2rem;
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 4rem 1rem;
+  }
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Buttons (Liquid Glass Style) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2.2rem;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  text-decoration: none;
+  border-radius: 100px; /* Pill shape like the dock */
+  color: #000;
+  
+  /* Base Liquid Glass (Matches Navbar) */
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 40px var(--dynamic-glow, rgba(0, 168, 255, 0.2)); /* Dynamic Y2K glow */
+}
+
+/* Primary Glass Variation (More Frosty/Opaque) */
+.btn-primary {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 40px var(--dynamic-glow-strong, rgba(0, 168, 255, 0.3));
+}
+
+/* Dark Glass Variation */
+.btn-dark {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-dark:hover {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  box-shadow: 0 12px 40px var(--dynamic-glow-dark, rgba(0, 0, 0, 0.4));
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

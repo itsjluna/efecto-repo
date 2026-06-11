@@ -11,15 +11,29 @@ import Cursor from './components/Cursor';
 function App() {
   // State to track when the cinematic wave reveal finishes
   const [siteVisible, setSiteVisible] = useState(false);
+  const [isAppLoading, setIsAppLoading] = useState(true);
+
+  // Simulate an initial loading phase for the aesthetic
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="app-container">
       <Cursor />
       
+      {/* Loading Overlay */}
+      <div className={`loading-overlay ${!isAppLoading ? 'fade-out' : ''}`}>
+        <div className="loading-text">FOCUSING LENSES...</div>
+      </div>
+      
       {/* Global Fixed Wave Background */}
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -1 }}>
         <Suspense fallback={<div style={{width:'100%', height:'100%', background:'#f0f0f0'}}></div>}>
-          <WaveBackground onRevealComplete={() => setSiteVisible(true)} />
+          <WaveBackground isAppLoading={isAppLoading} onRevealComplete={() => setSiteVisible(true)} />
         </Suspense>
       </div>
 

@@ -79,6 +79,8 @@ const Gallery = () => {
                       src={item.src} 
                       alt={item.title} 
                       className="gallery-image" 
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.target.style.display = 'none';
                         e.target.nextSibling.style.display = 'flex';

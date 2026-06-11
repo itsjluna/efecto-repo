@@ -14,7 +14,7 @@ const vertexShader = `
 const fragmentShader = `
   uniform float uTime;
   uniform vec2 uMouse;
-  uniform float uReveal;
+  uniform float uLoadingPulse;
   
   varying vec2 vUv;
 
@@ -39,9 +39,11 @@ const fragmentShader = `
     // Compute wave position
     float angle = uTime * speed * frequency * -1.0 + (phaseShift + uv.x) * 2.0;
     
-    // Apply mouse influence to the amplitude, and use uReveal to rise up on load
-    float revealOffset = (1.0 - uReveal) * 2.5; 
-    float waveY = sin(angle) * (amplitude + mouseInfluence) + verticalOffset + revealOffset;
+    // Pulse effect while loading
+    float pulse = sin(uTime * 8.0) * 0.8 * uLoadingPulse;
+    
+    // Apply mouse influence to the amplitude, plus pulse
+    float waveY = sin(angle) * (amplitude + mouseInfluence + pulse) + verticalOffset;
     
     // Calculate distance and delta for the asymmetric XMB glow falloff
     float deltaY = waveY - uv.y;
@@ -103,7 +105,7 @@ const fragmentShader = `
   }
 `;
 
-const WaveMaterial = ({ onRevealComplete }) => {
+const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
   const materialRef = useRef();
   const hasRevealed = useRef(false);
 
@@ -112,7 +114,7 @@ const WaveMaterial = ({ onRevealComplete }) => {
     () => ({
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) }, // Start at center
-      uReveal: { value: 0.0 }, // Starts hidden for transition
+      uLoadingPulse: { value: 1.0 }, // Starts pulsing
     }),
     []
   );
@@ -137,14 +139,14 @@ const WaveMaterial = ({ onRevealComplete }) => {
       const time = state.clock.elapsedTime + (scrollY.current * 0.003);
       materialRef.current.uniforms.uTime.value = time;
       
-      // Cinematic reveal animation on load
-      const currentReveal = materialRef.current.uniforms.uReveal.value;
-      if (currentReveal < 0.999) {
-        // Slowed down the wave reveal slightly so it feels more dramatic
-        materialRef.current.uniforms.uReveal.value += (1.0 - currentReveal) * 0.025;
-      } else if (!hasRevealed.current && onRevealComplete) {
+      // Loading pulse animation
+      const targetPulse = isAppLoading ? 1.0 : 0.0;
+      materialRef.current.uniforms.uLoadingPulse.value += (targetPulse - materialRef.current.uniforms.uLoadingPulse.value) * 0.05;
+      
+      // Trigger site reveal once pulsing settles down
+      if (!isAppLoading && materialRef.current.uniforms.uLoadingPulse.value < 0.01 && !hasRevealed.current) {
         hasRevealed.current = true;
-        onRevealComplete();
+        if (onRevealComplete) onRevealComplete();
       }
       
       // Calculate dynamic color for CSS variables to sync the DOM buttons with the WebGL
@@ -194,21 +196,21 @@ const WaveMaterial = ({ onRevealComplete }) => {
 };
 
 // A helper component to perfectly size the plane to the viewport
-const ViewportPlane = ({ onRevealComplete }) => {
+const ViewportPlane = ({ isAppLoading, onRevealComplete }) => {
   const { viewport } = useThree();
   return (
     <mesh>
       <planeGeometry args={[viewport.width, viewport.height]} />
-      <WaveMaterial onRevealComplete={onRevealComplete} />
+      <WaveMaterial isAppLoading={isAppLoading} onRevealComplete={onRevealComplete} />
     </mesh>
   );
 };
 
-const WaveBackground = ({ onRevealComplete }) => {
+const WaveBackground = ({ isAppLoading, onRevealComplete }) => {
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
       <Canvas camera={{ position: [0, 0, 1] }}>
-        <ViewportPlane onRevealComplete={onRevealComplete} />
+        <ViewportPlane isAppLoading={isAppLoading} onRevealComplete={onRevealComplete} />
       </Canvas>
     </div>
   );

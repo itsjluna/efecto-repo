@@ -29,31 +29,42 @@
 
 .services-kinetic-list {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.5rem;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .kinetic-item-wrapper {
   opacity: 0;
-  transform: translateX(-30px);
+  transform: translateY(30px);
   transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .kinetic-item-wrapper.slide-in {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
+}
+
+/* Add slight asymmetrical vertical shifting to the wrappers once they slide in */
+.kinetic-item-wrapper.slide-in:nth-child(even) {
+  transform: translateY(15px);
+}
+.kinetic-item-wrapper.slide-in:nth-child(3n) {
+  transform: translateY(-10px);
 }
 
 .kinetic-service-item {
   display: inline-block;
   position: relative;
-  padding: 0.5rem 1.5rem 0.5rem 0;
+  padding: 0.5rem 1.5rem;
   cursor: none; /* Let the custom cursor handle it */
 }
 
 /* The brutalist outline text */
 .kinetic-text {
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
   font-weight: 800;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--text-primary);
@@ -70,14 +81,14 @@
   content: '';
   position: absolute;
   top: 0;
-  left: -20px;
+  left: 0;
   width: 0%;
   height: 100%;
   background: rgba(255, 255, 255, 0.3);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
+  border-radius: 100px; /* Fully rounded pill for horizontal bricks */
   z-index: 1;
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -86,11 +97,11 @@
 /* Hover effects */
 .kinetic-service-item:hover .kinetic-text {
   color: var(--text-primary);
-  transform: translateX(20px);
+  transform: scale(1.05);
 }
 
 .kinetic-service-item:hover::before {
-  width: calc(100% + 40px);
+  width: 100%;
   opacity: 1;
 }
 

@@ -25,7 +25,7 @@
 .hero-logo-placeholder h1 {
   font-size: clamp(3rem, 8vw, 6rem);
   line-height: 1;
-  color: #001a33; /* Deep dark blue for multiply effect */
+  color: var(--text-primary);
   font-weight: 700;
   letter-spacing: -0.04em;
   

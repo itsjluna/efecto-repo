@@ -1,7 +1,7 @@
 import React from 'react';
 import './RegistrationInfo.css';
 
-const RegistrationInfo = ({ title, desc }) => {
+const RegistrationInfo = ({ title, desc, actionText = "Book a Session" }) => {
   return (
     <section id="registration-info" className="registration-info-wrapper">
       <div className="registration-info section-padding container">
@@ -10,7 +10,7 @@ const RegistrationInfo = ({ title, desc }) => {
             <h2>{title}</h2>
             <p>{desc}</p>
             <div className="contact-actions">
-              <a href="#contact" className="btn btn-primary">Book a Session</a>
+              <a href="#contact" className="btn btn-primary">{actionText}</a>
             </div>
           </div>
           

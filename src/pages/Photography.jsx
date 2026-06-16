@@ -35,6 +35,7 @@ const Photography = () => {
             <RegistrationInfo 
               title="Efecto Photography Services" 
               desc="We capture the essence of your brand through high-end, dynamic, and corporate-ready photography. From architectural documentation to executive portraits and dynamic lifestyle shoots, our visual solutions are crafted to elevate your market presence." 
+              actionText="Book a Session"
             />
           </div>
         </div>

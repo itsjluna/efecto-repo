@@ -35,6 +35,7 @@ const Marketing = () => {
             <RegistrationInfo 
               title="Efecto Marketing Services" 
               desc="We amplify your brand's voice across the digital landscape. Our services include full-scale SEO optimization, targeted PPC advertising, dynamic social media management, and strategic content creation designed to convert." 
+              actionText="Request an Audit"
             />
           </div>
         </div>

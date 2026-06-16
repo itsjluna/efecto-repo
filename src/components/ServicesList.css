@@ -1,115 +1,107 @@
-.services-kinetic-section {
+.marquee-glass-section {
   position: relative;
   z-index: 10;
+  width: 100%;
+  overflow: hidden;
+  padding: 6rem 0;
+}
+
+.marquee-glass-container {
+  /* Massive Liquid Glass Banner spanning full width */
+  background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 4rem 0;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 3rem;
+  
+  /* A subtle white glow to make it pop against the waves */
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.2);
 }
 
-.services-kinetic-header {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
+.marquee-container {
+  width: 100%;
+  position: relative;
+  /* Allow text to bleed off edges but hide from document scroll */
 }
 
-.services-kinetic-header.fade-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.section-subtitle {
-  font-size: 0.9rem;
-  letter-spacing: 0.2em;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding-bottom: 1rem;
-  display: inline-block;
-}
-
-.services-kinetic-list {
+.marquee-track {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 1.5rem 2.5rem;
-  justify-content: flex-start;
+  width: max-content;
+  align-items: center;
+  transition: opacity 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), filter 0.6s ease;
+  will-change: transform;
+}
+
+.marquee-track.dimmed {
+  opacity: 0.3;
+  filter: blur(4px);
+}
+
+.marquee-item {
+  padding: 0 4rem;
+  cursor: none;
+  position: relative;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
-.kinetic-item-wrapper {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.kinetic-item-wrapper.slide-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Add slight asymmetrical vertical shifting to the wrappers once they slide in */
-.kinetic-item-wrapper.slide-in:nth-child(even) {
-  transform: translateY(15px);
-}
-.kinetic-item-wrapper.slide-in:nth-child(3n) {
-  transform: translateY(-10px);
-}
-
-.kinetic-service-item {
-  display: inline-block;
-  position: relative;
-  padding: 0.5rem 1.5rem;
-  cursor: none; /* Let the custom cursor handle it */
-}
-
-/* The brutalist outline text */
-.kinetic-text {
-  font-size: clamp(1.8rem, 4vw, 3.5rem);
+.marquee-text {
+  font-size: clamp(3rem, 7vw, 6rem);
   font-weight: 800;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--text-primary);
   text-transform: uppercase;
   line-height: 1.1;
-  letter-spacing: -0.02em;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  white-space: nowrap;
+  transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
   z-index: 2;
 }
 
-/* The liquid glass pill that slides in */
-.kinetic-service-item::before {
+/* Hovering fills it and subtly scales it */
+.marquee-item:hover .marquee-text {
+  color: var(--text-primary);
+  transform: scale(1.05);
+  -webkit-text-stroke: 0px transparent;
+}
+
+/* Dynamic pill highlight behind hovered item */
+.marquee-item::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.3);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 100px; /* Fully rounded pill for horizontal bricks */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: calc(100% - 2rem);
+  height: 140%;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 100px;
   z-index: 1;
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  pointer-events: none;
 }
 
-/* Hover effects */
-.kinetic-service-item:hover .kinetic-text {
-  color: var(--text-primary);
-  transform: scale(1.05);
-}
-
-.kinetic-service-item:hover::before {
-  width: 100%;
+.marquee-item:hover::before {
   opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 @media (max-width: 768px) {
-  .kinetic-text {
-    -webkit-text-stroke: 1px var(--text-primary);
+  .marquee-glass-container {
+    padding: 3rem 0;
+    gap: 2rem;
   }
-  .kinetic-service-item:hover .kinetic-text {
-    transform: translateX(10px);
+  .marquee-item {
+    padding: 0 2rem;
+  }
+  .marquee-text {
+    -webkit-text-stroke: 1px var(--text-primary);
   }
 }

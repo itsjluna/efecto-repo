@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './Gallery.css';
 
-const Gallery = () => {
+const Gallery = ({ items }) => {
   const galleryRef = useRef(null);
 
   useEffect(() => {
@@ -22,20 +22,7 @@ const Gallery = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Set up image file paths in the public folder (e.g. /gallery1.jpg, /gallery2.jpg, etc.)
-  const items = [
-    { id: 1, type: 'image', src: '/gallery1.jpg', size: 'large', title: 'Corporate Portraits' },
-    { id: 2, type: 'image', src: '/gallery2.jpg', size: 'small', title: 'Architecture' },
-    { id: 't1', type: 'text', size: 'small', title: 'OUR VISION', content: 'Crafting pixel-perfect imagery that resonates with your corporate identity.' },
-    { id: 3, type: 'image', src: '/gallery3.jpg', size: 'medium', title: 'Event Coverage' },
-    { id: 4, type: 'image', src: '/gallery4.jpg', size: 'medium', title: 'Product Photography' },
-    { id: 't2', type: 'text', size: 'small', title: 'PERSPECTIVE', content: 'Our lenses capture more than light; they capture pure ambition.' },
-    { id: 't3', type: 'text', size: 'small', title: 'FOCUS', content: 'Uncompromising attention to detail in every single frame.' },
-    { id: 5, type: 'image', src: '/gallery5.jpg', size: 'large', title: 'Brand Lifestyle' },
-    { id: 6, type: 'image', src: '/gallery6.jpg', size: 'medium', title: 'Studio Sessions' },
-    { id: 't4', type: 'text', size: 'medium', title: 'INNOVATION', content: 'Pushing the boundaries of modern visual storytelling to elevate your brand presence.' },
-    { id: 7, type: 'image', src: '/gallery7.jpg', size: 'wide', title: 'Aerial Photography' },
-  ];
+  // Items are now passed via props
 
   return (
     <section id="gallery" className="gallery-section section-padding" style={{ position: 'relative', overflow: 'hidden' }}>

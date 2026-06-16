@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Home, Image, Mail } from 'lucide-react';
 import './Header.css';
 
@@ -26,7 +27,7 @@ const Header = () => {
   return (
     <div className={`header-wrapper ${scrolled ? 'scrolled' : ''}`}>
       <header className="header">
-        {!isMobile && <div className="logo">EFECTO</div>}
+        {!isMobile && <Link to="/" className="logo">EFECTO</Link>}
         
         <nav className="nav-links">
           <a href="#home" title="Home">

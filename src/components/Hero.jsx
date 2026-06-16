@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './Hero.css';
 
-const Hero = () => {
+const Hero = ({ title, subtitle, info }) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -13,17 +13,15 @@ const Hero = () => {
       <div className="container section-padding">
         <div className={`hero-content ${loaded ? 'animate-in' : ''}`}>
           <div className="hero-logo-placeholder slide-up-1">
-            <h1>EFECTO AGENCY</h1>
+            <h1>{title}</h1>
           </div>
           
           <h2 className="hero-subtitle slide-up-2">
-            ELEVATING VISUAL NARRATIVES
+            {subtitle}
           </h2>
           
           <p className="hero-info slide-up-3">
-            We are a premium photography agency dedicated to capturing striking imagery 
-            for modern corporate environments. From structural minimalism to dynamic 
-            portraits, our aesthetic defines the future of your brand.
+            {info}
           </p>
         </div>
       </div>

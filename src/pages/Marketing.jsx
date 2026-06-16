@@ -32,14 +32,14 @@ const Marketing = () => {
               subtitle="DRIVING DIGITAL EXCELLENCE" 
               info="We are a cutting-edge marketing agency focused on delivering measurable results. From comprehensive SEO strategies to explosive digital campaigns, our data-driven approach ensures your brand dominates the market." 
             />
+            <RegistrationInfo 
+              title="Efecto Marketing Services" 
+              desc="We amplify your brand's voice across the digital landscape. Our services include full-scale SEO optimization, targeted PPC advertising, dynamic social media management, and strategic content creation designed to convert." 
+              actionText="Request an Audit"
+            />
           </div>
         </div>
         <Gallery items={marketingItems} />
-        <RegistrationInfo 
-          title="Efecto Marketing Services" 
-          desc="We amplify your brand's voice across the digital landscape. Our services include full-scale SEO optimization, targeted PPC advertising, dynamic social media management, and strategic content creation designed to convert." 
-          actionText="Request an Audit"
-        />
         <Contact />
       </main>
       <Footer />

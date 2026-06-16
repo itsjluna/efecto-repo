@@ -1,5 +1,5 @@
-import React, { Suspense, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { Suspense, useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import WaveBackground from './components/WaveBackground';
 import Cursor from './components/Cursor';
@@ -7,13 +7,22 @@ import Landing from './pages/Landing';
 import Photography from './pages/Photography';
 import Marketing from './pages/Marketing';
 
+// Component to handle scrolling to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   // State to track when the cinematic wave reveal finishes
   const [siteVisible, setSiteVisible] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState(true);
 
   // Simulate an initial loading phase for the aesthetic
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setIsAppLoading(false);
     }, 2500);
@@ -22,6 +31,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="app-container">
         <Cursor />
         

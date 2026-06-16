@@ -7,7 +7,7 @@ const ProgressiveImage = ({ src, alt, title, id }) => {
   return (
     <>
       <div className={`img-placeholder ${isLoaded ? 'loaded' : ''}`}>
-        <div className="placeholder-content">IMAGE_{id}</div>
+        <div className="placeholder-content">REVEALING...</div>
       </div>
       <img 
         src={src} 

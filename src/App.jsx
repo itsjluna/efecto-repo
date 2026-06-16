@@ -6,6 +6,7 @@ import Cursor from './components/Cursor';
 import Landing from './pages/Landing';
 import Photography from './pages/Photography';
 import Marketing from './pages/Marketing';
+import Portfolio from './pages/Portfolio';
 
 // Component to handle scrolling to top on route change
 function ScrollToTop() {
@@ -37,7 +38,7 @@ function App() {
         
         {/* Loading Overlay */}
         <div className={`loading-overlay ${!isAppLoading ? 'fade-out' : ''}`}>
-          <div className="loading-text">FOCUSING LENSES...</div>
+          <div className="loading-text">CRYSTALLIZING INTERFACE...</div>
         </div>
         
         {/* Global Fixed Wave Background */}
@@ -59,6 +60,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/photography" element={<Photography />} />
             <Route path="/marketing" element={<Marketing />} />
+            <Route path="/portfolio" element={<Portfolio />} />
           </Routes>
         </div>
       </div>

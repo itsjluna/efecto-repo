@@ -30,12 +30,12 @@ const Header = () => {
         {!isMobile && <Link to="/" className="logo">EFECTO</Link>}
         
         <nav className="nav-links">
-          <a href="#home" title="Home">
+          <Link to="/" title="Home">
             {isMobile ? <Home size={22} strokeWidth={1.5} /> : 'Home'}
-          </a>
-          <a href="#portfolio" title="Portfolio">
+          </Link>
+          <Link to="/portfolio" title="Portfolio">
             {isMobile ? <Image size={22} strokeWidth={1.5} /> : 'Portfolio'}
-          </a>
+          </Link>
           <a href="#contact" title="Contact">
             {isMobile ? <Mail size={22} strokeWidth={1.5} /> : 'Contact'}
           </a>

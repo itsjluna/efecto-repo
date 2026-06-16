@@ -7,7 +7,7 @@ const Landing = () => {
     <div className="landing-container">
       <div className="landing-content">
         <h1 className="landing-logo">EFECTO AGENCY</h1>
-        <p className="landing-subtitle">SELECT YOUR EXPERIENCE</p>
+        <p className="landing-subtitle">SEE BEYOND</p>
         
         <div className="landing-options">
           <Link to="/photography" className="btn btn-primary landing-btn">

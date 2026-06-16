@@ -1,0 +1,104 @@
+.services-kinetic-section {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.services-kinetic-header {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.services-kinetic-header.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 1rem;
+  display: inline-block;
+}
+
+.services-kinetic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.kinetic-item-wrapper {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.kinetic-item-wrapper.slide-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.kinetic-service-item {
+  display: inline-block;
+  position: relative;
+  padding: 0.5rem 1.5rem 0.5rem 0;
+  cursor: none; /* Let the custom cursor handle it */
+}
+
+/* The brutalist outline text */
+.kinetic-text {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--text-primary);
+  text-transform: uppercase;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  z-index: 2;
+}
+
+/* The liquid glass pill that slides in */
+.kinetic-service-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -20px;
+  width: 0%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  z-index: 1;
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Hover effects */
+.kinetic-service-item:hover .kinetic-text {
+  color: var(--text-primary);
+  transform: translateX(20px);
+}
+
+.kinetic-service-item:hover::before {
+  width: calc(100% + 40px);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .kinetic-text {
+    -webkit-text-stroke: 1px var(--text-primary);
+  }
+  .kinetic-service-item:hover .kinetic-text {
+    transform: translateX(10px);
+  }
+}

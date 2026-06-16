@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import RegistrationInfo from '../components/RegistrationInfo';
+import ServicesList from '../components/ServicesList';
 import Gallery from '../components/Gallery';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
@@ -20,6 +21,14 @@ const marketingItems = [
   { id: 7, type: 'image', src: '/gallery6.jpg', size: 'wide', title: 'Digital Branding' },
 ];
 
+const marketingServices = [
+  "BRAND MANAGEMENT",
+  "WEB & MOBILE DEVELOPMENT",
+  "GRAPHIC DESIGN",
+  "SOCIAL MEDIA MANAGEMENT",
+  "SEO & DIGITAL CAMPAIGNS"
+];
+
 const Marketing = () => {
   return (
     <>
@@ -30,6 +39,7 @@ const Marketing = () => {
           subtitle="DRIVING DIGITAL EXCELLENCE" 
           info="A cutting-edge agency focused on delivering measurable results and scalable digital infrastructure. From holistic brand management to robust web and mobile development, we engineer your market dominance." 
         />
+        <ServicesList services={marketingServices} title="CORE CAPABILITIES" />
         <RegistrationInfo 
           title="Efecto Marketing Services" 
           desc="We build and amplify your digital presence. Our division specializes in comprehensive branding, striking graphic design, scalable web & mobile development, and data-driven social media management." 

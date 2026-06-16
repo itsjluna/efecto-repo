@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import RegistrationInfo from '../components/RegistrationInfo';
+import ServicesList from '../components/ServicesList';
 import Gallery from '../components/Gallery';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
@@ -20,6 +21,14 @@ const photographyItems = [
   { id: 7, type: 'image', src: '/gallery7.jpg', size: 'wide', title: 'Live Performances' },
 ];
 
+const photographyServices = [
+  "WEDDINGS & ELOPEMENTS",
+  "CORPORATE EVENTS",
+  "BRAND LIFESTYLE",
+  "EDITORIAL & FASHION",
+  "PRODUCT PHOTOGRAPHY"
+];
+
 const Photography = () => {
   return (
     <>
@@ -30,12 +39,13 @@ const Photography = () => {
           subtitle="ELEVATING VISUAL NARRATIVES" 
           info="A premium photography studio dedicated to capturing striking imagery. From timeless weddings to dynamic marketing campaigns, our aesthetic defines your story." 
         />
-        <Gallery items={photographyItems} />
+        <ServicesList services={photographyServices} title="PHOTOGRAPHY EXPERTISE" />
         <RegistrationInfo 
           title="Efecto Photography Services" 
           desc="We capture the essence of your vision through high-end, dynamic photography. Our expertise spans luxury weddings, comprehensive event coverage, brand lifestyle shoots, and striking assets for marketing campaigns." 
           actionText="Book a Session"
         />
+        <Gallery items={photographyItems} />
         <Contact />
       </main>
       <Footer />

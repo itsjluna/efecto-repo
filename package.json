@@ -1,7 +1,9 @@
 {
-  "name": "efecto",
+  "name": "efecto-agency",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Efecto Creative Agency - Photography & Marketing",
+  "author": "Efecto Agency",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -6,8 +6,14 @@ const Cursor = () => {
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
 
   useEffect(() => {
+    const checkIsDesktop = () => setIsDesktop(window.innerWidth > 768);
+    window.addEventListener('resize', checkIsDesktop);
+
+    if (!isDesktop) return; // Don't attach listeners on mobile
+
     const moveCursor = (e) => {
       if (!visible) setVisible(true);
       setPos({ x: e.clientX, y: e.clientY });
@@ -40,6 +46,7 @@ const Cursor = () => {
     document.addEventListener('mouseenter', handleMouseEnter);
 
     return () => {
+      window.removeEventListener('resize', checkIsDesktop);
       window.removeEventListener('mousemove', moveCursor);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
@@ -47,9 +54,9 @@ const Cursor = () => {
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
     };
-  }, [visible]);
+  }, [visible, isDesktop]);
 
-  if (!visible) return null;
+  if (!isDesktop || !visible) return null;
 
   return (
     <div 
@@ -58,13 +65,7 @@ const Cursor = () => {
         transform: `translate3d(${pos.x}px, ${pos.y}px, 0)` 
       }}
     >
-      <svg className="cursor-svg" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        {/* A rounded triangle path */}
-        <path 
-          d="M12 2L2 20H22L12 2Z" 
-          strokeLinejoin="round" 
-        />
-      </svg>
+      <div className="cursor-sphere"></div>
     </div>
   );
 };

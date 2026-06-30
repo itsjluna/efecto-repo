@@ -43,7 +43,7 @@ const Portfolio = () => {
           info="A curated collection of our most impactful collaborations, spanning cutting-edge digital platforms, global marketing campaigns, and striking visual narratives." 
         />
         {/* Reusing the dynamic marquee for a sleek client list! */}
-        <ServicesList services={clientList} title="TRUSTED BY" />
+        <ServicesList services={clientList} title="TRUSTED BY" id="partners" />
         <Gallery items={portfolioItems} />
         <Contact />
       </main>

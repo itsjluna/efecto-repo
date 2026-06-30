@@ -102,7 +102,7 @@
   }
 
   .nav-links {
-    gap: 3.5rem; /* Space between icons */
+    gap: 1.8rem; /* Space between icons (reduced slightly to fit 5 icons) */
   }
   
   .nav-links a {

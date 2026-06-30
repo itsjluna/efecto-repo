@@ -10,6 +10,9 @@ const Landing = () => {
         <p className="landing-subtitle">SEE BEYOND</p>
         
         <div className="landing-options">
+          <Link to="/portfolio" className="btn btn-primary landing-btn">
+            THE ARCHIVE
+          </Link>
           <Link to="/photography" className="btn btn-primary landing-btn">
             PHOTOGRAPHY
           </Link>

@@ -106,7 +106,7 @@ const MarqueeTrack = ({ items, speed, direction, isGlobalPaused, setGlobalPaused
   );
 };
 
-const ServicesList = ({ services }) => {
+const ServicesList = ({ services, id = "services" }) => {
   const [isGlobalPaused, setGlobalPaused] = useState(false);
   
   // Split the services array into two asymmetrical tracks
@@ -115,7 +115,7 @@ const ServicesList = ({ services }) => {
   const row2 = services.slice(mid);
 
   return (
-    <section className="marquee-glass-section">
+    <section id={id} className="marquee-glass-section">
       <div className="marquee-glass-container">
         <MarqueeTrack 
           items={row1} 

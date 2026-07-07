@@ -20,27 +20,95 @@
   opacity: 0;
 }
 
-.loading-text {
+.see-beyond-start-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #ffffff;
   font-family: var(--font-primary);
   font-size: 1.2rem;
   letter-spacing: 0.4em;
   font-weight: 500;
-  animation: textPulse 1.5s infinite alternate;
-  text-align: center;
-  margin-right: -0.4em;
-  padding: 0 1rem;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  animation: buttonPulse 2s infinite alternate;
+  pointer-events: auto;
 }
 
-@keyframes textPulse {
-  from { opacity: 0.4; filter: blur(2px); }
-  to { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+.see-beyond-start-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.see-beyond-start-btn.morphing {
+  animation: morphToSubtitle 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes buttonPulse {
+  from { opacity: 0.6; box-shadow: 0 0 0 rgba(255,255,255,0); }
+  to { opacity: 1; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+}
+
+@keyframes morphToSubtitle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, -100px) scale(0.6);
+    opacity: 0;
+    letter-spacing: 0.8em;
+  }
 }
 
 @media (max-width: 768px) {
-  .loading-text {
+  .see-beyond-start-btn {
     font-size: 0.85rem;
     letter-spacing: 0.25em;
-    margin-right: -0.25em;
+    padding: 0.8rem 1.8rem;
   }
+}
+
+/* Page Transition Wrapper */
+.page-transition-wrapper {
+  animation: pageEnter 1.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+  will-change: transform, opacity, filter;
+  height: 100%;
+  width: 100%;
+}
+
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Global Selection and UX Polish */
+::selection {
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }

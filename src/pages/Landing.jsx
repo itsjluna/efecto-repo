@@ -13,13 +13,13 @@ const Landing = () => {
         <p className="landing-subtitle">SEE BEYOND</p>
         
         <div className="landing-options">
-          <Link to="/portfolio" className="btn btn-primary landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
+          <Link to="/portfolio" className="landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
             THE ARCHIVE
           </Link>
-          <Link to="/photography" className="btn btn-primary landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
+          <Link to="/photography" className="landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
             PHOTOGRAPHY
           </Link>
-          <Link to="/marketing" className="btn btn-primary landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
+          <Link to="/marketing" className="landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
             DIGITAL & MARKETING
           </Link>
         </div>

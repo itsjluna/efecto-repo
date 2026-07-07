@@ -18,16 +18,19 @@ function ScrollToTop() {
 }
 
 function App() {
+  const location = useLocation();
   const [siteVisible, setSiteVisible] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [isMorphing, setIsMorphing] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
-  // Simulate an initial loading phase for the aesthetic
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const handleStart = () => {
+    setIsMorphing(true);
+    setTimeout(() => {
       setIsAppLoading(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
+      setHasStarted(true);
+    }, 800); // Allow morph animation to complete before revealing waves
+  };
 
   return (
     <>
@@ -37,7 +40,14 @@ function App() {
         
         {/* Loading Overlay */}
         <div className={`loading-overlay ${!isAppLoading ? 'fade-out' : ''}`}>
-          <div className="loading-text">CRYSTALLIZING INTERFACE...</div>
+          {!hasStarted && (
+            <button 
+              className={`see-beyond-start-btn ${isMorphing ? 'morphing' : ''}`} 
+              onClick={handleStart}
+            >
+              SEE BEYOND
+            </button>
+          )}
         </div>
         
         {/* Global Fixed Wave Background */}
@@ -52,15 +62,19 @@ function App() {
           style={{ 
             opacity: siteVisible ? 1 : 0, 
             transition: 'opacity 1.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
-            pointerEvents: siteVisible ? 'auto' : 'none' 
+            pointerEvents: siteVisible ? 'auto' : 'none',
+            height: '100%',
+            width: '100%'
           }}
         >
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/photography" element={<Photography />} />
-            <Route path="/marketing" element={<Marketing />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-          </Routes>
+          <div key={location.pathname} className="page-transition-wrapper">
+            <Routes location={location}>
+              <Route path="/" element={<Landing />} />
+              <Route path="/photography" element={<Photography />} />
+              <Route path="/marketing" element={<Marketing />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+            </Routes>
+          </div>
         </div>
       </div>
     </>

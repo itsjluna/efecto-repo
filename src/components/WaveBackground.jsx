@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useLocation } from 'react-router-dom';
 import * as THREE from 'three';
 
 const vertexShader = `
@@ -108,6 +109,9 @@ const fragmentShader = `
 const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
   const materialRef = useRef();
   const hasRevealed = useRef(false);
+  const location = useLocation();
+  const speedBurst = useRef(1.0);
+  const accumulatedTime = useRef(0);
 
   // Define uniforms
   const uniforms = useMemo(
@@ -131,13 +135,26 @@ const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useFrame((state) => {
+  // Trigger speed burst on route changes
+  useEffect(() => {
+    speedBurst.current = 15.0; 
+  }, [location.pathname]);
+
+  useFrame((state, delta) => {
     if (materialRef.current) {
+      // Smoothly decay the speed burst back to normal
+      if (speedBurst.current > 1.001) {
+        speedBurst.current += (1.0 - speedBurst.current) * 0.08;
+      }
+
+      // Calculate accumulated time respecting the speed burst
+      accumulatedTime.current += (delta * speedBurst.current);
+
       // Smooth scroll interpolation
       scrollY.current += (targetScrollY.current - scrollY.current) * 0.1;
       
-      // Add a fraction of the scroll position to the time to create parallax acceleration
-      const time = state.clock.elapsedTime + (scrollY.current * 0.003);
+      // Combine accumulated time with scroll parallax
+      const time = accumulatedTime.current + (scrollY.current * 0.003);
       materialRef.current.uniforms.uTime.value = time;
       
       // Cinematic slide down reveal animation

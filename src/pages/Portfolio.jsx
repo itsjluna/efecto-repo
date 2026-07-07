@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from '../components/Header';
 import Hero from '../components/Hero';
 import ServicesList from '../components/ServicesList';
 import Gallery from '../components/Gallery';
@@ -36,7 +35,6 @@ const clientList = [
 const Portfolio = () => {
   return (
     <>
-      <Header />
       <main style={{ position: 'relative', zIndex: 1 }}>
         <Hero 
           title="THE ARCHIVE" 

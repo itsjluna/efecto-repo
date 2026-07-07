@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import WaveBackground from './components/WaveBackground';
 import Cursor from './components/Cursor';
+import Header from './components/Header';
 import Landing from './pages/Landing';
 import Photography from './pages/Photography';
 import Marketing from './pages/Marketing';
@@ -67,6 +68,7 @@ function App() {
             width: '100%'
           }}
         >
+          {location.pathname !== '/' && <Header />}
           <div key={location.pathname} className="page-transition-wrapper">
             <Routes location={location}>
               <Route path="/" element={<Landing />} />

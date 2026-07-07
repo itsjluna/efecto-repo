@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from '../components/Header';
 import Hero from '../components/Hero';
 import RegistrationInfo from '../components/RegistrationInfo';
 import ServicesList from '../components/ServicesList';
@@ -32,7 +31,6 @@ const photographyServices = [
 const Photography = () => {
   return (
     <>
-      <Header />
       <main style={{ position: 'relative', zIndex: 1 }}>
         <Hero 
           title="EFECTO PHOTOGRAPHY" 

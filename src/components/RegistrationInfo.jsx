@@ -1,7 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './RegistrationInfo.css';
 
 const RegistrationInfo = ({ title, desc, actionText = "Book a Session" }) => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type: 'Newsletter Subscription' })
+      });
+
+      if (!response.ok) throw new Error('Failed to subscribe');
+      
+      setStatus('success');
+      setEmail('');
+      setTimeout(() => setStatus('idle'), 5000);
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+    }
+  };
+
   return (
     <section id="registration-info" className="registration-info-wrapper">
       <div className="registration-info section-padding container">
@@ -17,10 +43,20 @@ const RegistrationInfo = ({ title, desc, actionText = "Book a Session" }) => {
           <div className="registration-box">
             <h3>Stay Updated</h3>
             <p>Subscribe to our newsletter for the latest visual trends and exclusive offers.</p>
-            <form className="email-form" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Enter your email address" required />
-              <button type="submit" className="btn btn-primary">Subscribe</button>
+            <form className="email-form" onSubmit={handleSubscribe}>
+              <input 
+                type="email" 
+                placeholder="Enter your email address" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+              <button type="submit" className="btn btn-primary" disabled={status === 'loading'}>
+                {status === 'loading' ? '...' : 'Subscribe'}
+              </button>
             </form>
+            {status === 'success' && <p style={{ color: '#00ff88', marginTop: '0.5rem', fontSize: '0.85rem' }}>Successfully subscribed!</p>}
+            {status === 'error' && <p style={{ color: '#ff4444', marginTop: '0.5rem', fontSize: '0.85rem' }}>Error subscribing.</p>}
           </div>
         </div>
       </div>

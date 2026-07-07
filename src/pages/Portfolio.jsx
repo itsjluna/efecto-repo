@@ -23,13 +23,14 @@ const portfolioItems = [
 
 // Prestigious client list to pass into the marquee
 const clientList = [
-  "LVMH",
-  "APPLE INC",
-  "TESLA",
-  "NIKE",
-  "SONY MUSIC",
-  "A24 FILMS",
-  "PORSCHE"
+  "@tuabogadamariana",
+  "savefile",
+  "ay chuch!",
+  "shev law group",
+  "titanium surgical arts",
+  "luvem leches",
+  "little champs",
+  "quimtec"
 ];
 
 const Portfolio = () => {

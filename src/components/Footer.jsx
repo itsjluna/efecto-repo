@@ -20,9 +20,9 @@ const Footer = () => {
           </div>
           
           <div className="link-column">
-            <span>contact@efecto.agency</span>
+            <span>info@efectoagency.com</span>
             <span>Texas, US</span>
-            <span>+1 555 0199 42</span>
+            <span>+1 (504) 453-4617</span>
           </div>
         </div>
       </div>

@@ -72,6 +72,23 @@
   transition: all 0.3s ease;
 }
 
+.audio-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #222;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.audio-toggle-btn:hover {
+  color: #000;
+  transform: scale(1.1);
+}
+
 .nav-cta:hover {
   background: #333;
   transform: translateY(-2px);

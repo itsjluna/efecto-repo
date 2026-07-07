@@ -122,9 +122,39 @@ a:hover {
   box-shadow: 0 12px 40px var(--dynamic-glow-dark, rgba(0, 0, 0, 0.4));
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling and anchor offset */
 html {
   scroll-behavior: smooth;
+}
+
+section, [id] {
+  scroll-margin-top: 120px; /* Prevents navbar from covering content */
+}
+
+/* Custom Webkit Scrollbar */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+::-webkit-scrollbar {
+  width: 12px;
+}
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03); 
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+  background-clip: padding-box;
 }
 
 @keyframes slideUpFade {

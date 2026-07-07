@@ -3,6 +3,29 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useLocation } from 'react-router-dom';
 import * as THREE from 'three';
 
+const PALETTES = {
+  '/': { // Cold PS3 Liquid Glass
+    base: new THREE.Color(0.0, 0.5, 0.9),
+    accent: new THREE.Color(0.0, 0.9, 1.0),
+    highlight: new THREE.Color(0.4, 0.1, 0.8)
+  },
+  '/photography': { // Warm Light & Darkroom
+    base: new THREE.Color(0.7, 0.2, 0.05),
+    accent: new THREE.Color(0.9, 0.5, 0.1),
+    highlight: new THREE.Color(0.5, 0.05, 0.1)
+  },
+  '/marketing': { // Digital Energy
+    base: new THREE.Color(0.05, 0.7, 0.3),
+    accent: new THREE.Color(0.0, 0.9, 0.8),
+    highlight: new THREE.Color(0.4, 0.9, 0.1)
+  },
+  '/portfolio': { // The Archival Void
+    base: new THREE.Color(0.15, 0.05, 0.35),
+    accent: new THREE.Color(0.3, 0.1, 0.6),
+    highlight: new THREE.Color(0.6, 0.6, 0.75)
+  }
+};
+
 const vertexShader = `
   varying vec2 vUv;
 
@@ -17,6 +40,10 @@ const fragmentShader = `
   uniform vec2 uMouse;
   uniform float uLoadingPulse;
   uniform float uReveal;
+  
+  uniform vec3 uColorBase;
+  uniform vec3 uColorAccent;
+  uniform vec3 uColorHighlight;
   
   varying vec2 vUv;
 
@@ -85,13 +112,12 @@ const fragmentShader = `
     intensity *= glowPulse;
 
     // Dynamic cold color shift logic
-    // We create a slowly evolving mix of Blues, Cyans, and Purples
     float colorShift = sin(uTime * 0.15 + uv.x * 2.0) * 0.5 + 0.5;
-    vec3 waveColor = mix(vec3(0.0, 0.5, 0.9), vec3(0.0, 0.9, 1.0), colorShift); // Blue to Cyan
+    vec3 waveColor = mix(uColorBase, uColorAccent, colorShift);
     
-    // Add subtle purple hues shifting at a different rate
-    float purpleShift = cos(uTime * 0.1) * 0.5 + 0.5;
-    waveColor = mix(waveColor, vec3(0.4, 0.1, 0.8), purpleShift * 0.5); 
+    // Add subtle highlight hues shifting at a different rate
+    float highlightShift = cos(uTime * 0.1) * 0.5 + 0.5;
+    waveColor = mix(waveColor, uColorHighlight, highlightShift * 0.5); 
     
     // The background color of the site is light (#f0f0f0 or white)
     vec3 bgColor = vec3(0.96, 0.96, 0.96); // Soft white/grey
@@ -120,6 +146,9 @@ const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
       uMouse: { value: new THREE.Vector2(0.5, 0.5) }, // Start at center
       uLoadingPulse: { value: 1.0 }, // Starts pulsing
       uReveal: { value: 0.0 }, // Starts hidden for transition
+      uColorBase: { value: PALETTES['/'].base.clone() },
+      uColorAccent: { value: PALETTES['/'].accent.clone() },
+      uColorHighlight: { value: PALETTES['/'].highlight.clone() },
     }),
     []
   );
@@ -173,27 +202,34 @@ const WaveMaterial = ({ isAppLoading, onRevealComplete }) => {
         if (onRevealComplete) onRevealComplete();
       }
       
+      // Smoothly interpolate shader colors towards the target palette
+      const targetPalette = PALETTES[location.pathname] || PALETTES['/'];
+      materialRef.current.uniforms.uColorBase.value.lerp(targetPalette.base, 0.03);
+      materialRef.current.uniforms.uColorAccent.value.lerp(targetPalette.accent, 0.03);
+      materialRef.current.uniforms.uColorHighlight.value.lerp(targetPalette.highlight, 0.03);
+
       // Calculate dynamic color for CSS variables to sync the DOM buttons with the WebGL
       // We replicate the shader math for the center of the screen (uv.x = 0.5)
       const colorShift = Math.sin(time * 0.15 + 0.5 * 2.0) * 0.5 + 0.5;
+      const highlightShift = Math.cos(time * 0.1) * 0.5 + 0.5;
+      const mixFactor = highlightShift * 0.5;
       
-      // Mix Blue (0, 127.5, 229.5) and Cyan (0, 229.5, 255)
-      let r = 0;
-      let g = 127.5 * (1 - colorShift) + 229.5 * colorShift;
-      let b = 229.5 * (1 - colorShift) + 255 * colorShift;
+      const b = materialRef.current.uniforms.uColorBase.value;
+      const a = materialRef.current.uniforms.uColorAccent.value;
+      const h = materialRef.current.uniforms.uColorHighlight.value;
+
+      let r = b.r * (1 - colorShift) + a.r * colorShift;
+      let g = b.g * (1 - colorShift) + a.g * colorShift;
+      let blue = b.b * (1 - colorShift) + a.b * colorShift;
       
-      // Purple shift (102, 25.5, 204)
-      const purpleShift = Math.cos(time * 0.1) * 0.5 + 0.5;
-      const mixFactor = purpleShift * 0.5;
-      
-      r = r * (1 - mixFactor) + 102 * mixFactor;
-      g = g * (1 - mixFactor) + 25.5 * mixFactor;
-      b = b * (1 - mixFactor) + 204 * mixFactor;
+      r = (r * (1 - mixFactor) + h.r * mixFactor) * 255;
+      g = (g * (1 - mixFactor) + h.g * mixFactor) * 255;
+      blue = (blue * (1 - mixFactor) + h.b * mixFactor) * 255;
       
       // Sync it to the root document for CSS to use
-      document.documentElement.style.setProperty('--dynamic-glow', `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.2)`);
-      document.documentElement.style.setProperty('--dynamic-glow-strong', `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.35)`);
-      document.documentElement.style.setProperty('--dynamic-glow-dark', `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.4)`);
+      document.documentElement.style.setProperty('--dynamic-glow', `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(blue)}, 0.2)`);
+      document.documentElement.style.setProperty('--dynamic-glow-strong', `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(blue)}, 0.35)`);
+      document.documentElement.style.setProperty('--dynamic-glow-dark', `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(blue)}, 0.4)`);
       
       // state.pointer provides normalized coordinates from -1 to 1 based on mouse position.
       // We map this to 0 to 1 to match our UV coordinates in the shader.

@@ -18,15 +18,14 @@ export const AudioProvider = ({ children }) => {
   const ambientMasterRef = useRef(null);
   const reverbNodeRef = useRef(null);
   const echoDelayRef = useRef(null);
-  const pingIntervalRef = useRef(null);
-  const swellIntervalRef = useRef(null);
+  const pingIntervals = useRef([null, null]);
+  const swellIntervals = useRef([null, null]);
   const droneRef = useRef({ oscs: [], filter: null });
   const location = useLocation();
-
-  const seqState = useRef({
-    notesLeftInPhrase: 0,
-    lastNoteIndex: 0
-  });
+  const seqStates = useRef([
+    { notesLeftInPhrase: 0, lastNoteIndex: 0 },
+    { notesLeftInPhrase: 0, lastNoteIndex: 0 }
+  ]);
 
   useEffect(() => {
     const initAudio = () => {
@@ -157,15 +156,21 @@ export const AudioProvider = ({ children }) => {
   };
 
   const startGenerativeEngine = () => {
-    triggerPing();
-    triggerSwell();
+    // Layer 0 (Primary)
+    triggerPing(0);
+    triggerSwell(0);
+    
+    // Layer 1 (Secondary, offset to create polyrhythmic depth)
+    setTimeout(() => triggerPing(1), 3200);
+    setTimeout(() => triggerSwell(1), 7500);
+
     startDrone();
     if (isEnabled && audioCtx.current) {
       ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 3.0);
     }
   };
 
-  const triggerSwell = () => {
+  const triggerSwell = (layer = 0) => {
     if (!audioCtx.current || !isEnabled) return;
     
     const ctx = audioCtx.current;
@@ -204,8 +209,8 @@ export const AudioProvider = ({ children }) => {
     });
 
     const nextTime = 8000 + (Math.random() * 6000);
-    clearTimeout(swellIntervalRef.current);
-    swellIntervalRef.current = setTimeout(triggerSwell, nextTime);
+    clearTimeout(swellIntervals.current[layer]);
+    swellIntervals.current[layer] = setTimeout(() => triggerSwell(layer), nextTime);
   };
 
   const playGenerativeNote = (ctx, freq, decayTime = 4.0, volume = 0.06) => {
@@ -249,18 +254,19 @@ export const AudioProvider = ({ children }) => {
     if (echoDelayRef.current) gain.connect(echoDelayRef.current);
   };
 
-  const triggerPing = () => {
+  const triggerPing = (layer = 0) => {
     if (!audioCtx.current || !isEnabled) return;
     
     const ctx = audioCtx.current;
     const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
     const maxIndex = currentChord.length - 1;
+    const state = seqStates.current[layer];
     
-    if (seqState.current.notesLeftInPhrase <= 0) {
-      seqState.current.notesLeftInPhrase = Math.floor(Math.random() * 3) + 2; 
+    if (state.notesLeftInPhrase <= 0) {
+      state.notesLeftInPhrase = Math.floor(Math.random() * 3) + 2; 
     }
 
-    let nextIndex = seqState.current.lastNoteIndex;
+    let nextIndex = state.lastNoteIndex;
     if (Math.random() < 0.7) {
        const step = Math.random() > 0.5 ? 1 : -1;
        nextIndex += step;
@@ -270,7 +276,7 @@ export const AudioProvider = ({ children }) => {
        nextIndex = Math.floor(Math.random() * currentChord.length);
     }
     
-    seqState.current.lastNoteIndex = nextIndex;
+    state.lastNoteIndex = nextIndex;
     const baseNote = currentChord[nextIndex];
 
     const multipliers = [1, 2, 2, 4];
@@ -284,16 +290,17 @@ export const AudioProvider = ({ children }) => {
        playGenerativeNote(ctx, clusterFreq, 5.0, 0.03); 
     }
     
-    seqState.current.notesLeftInPhrase -= 1;
+    state.notesLeftInPhrase -= 1;
     
     let nextTime;
-    if (seqState.current.notesLeftInPhrase > 0) {
+    if (state.notesLeftInPhrase > 0) {
       nextTime = 1200 + (Math.random() * 1500); 
     } else {
       nextTime = 6000 + (Math.random() * 6000); 
     }
 
-    pingIntervalRef.current = setTimeout(triggerPing, nextTime);
+    clearTimeout(pingIntervals.current[layer]);
+    pingIntervals.current[layer] = setTimeout(() => triggerPing(layer), nextTime);
   };
 
   useEffect(() => {
@@ -314,7 +321,8 @@ export const AudioProvider = ({ children }) => {
     droneRef.current.oscs.forEach(osc =>
       osc.frequency.setTargetAtTime(newRoot, audioCtx.current.currentTime, 3.0)
     );
-    triggerSwell();
+    triggerSwell(0);
+    triggerSwell(1);
   }, [location.pathname]);
 
   const createOscillator = (freq, type, duration, gainValue = 0.1) => {

@@ -16,6 +16,7 @@ export const AudioProvider = ({ children }) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const audioCtx = useRef(null);
   const ambientMasterRef = useRef(null);
+  const muteNodeRef = useRef(null);
   const reverbNodeRef = useRef(null);
   const echoDelayRef = useRef(null);
   const pingIntervals = useRef([null, null]);
@@ -45,8 +46,13 @@ export const AudioProvider = ({ children }) => {
         limiter.attack.value = 0.003;
         limiter.release.value = 0.25;
 
+        const muteNode = audioCtx.current.createGain();
+        muteNode.gain.value = 1.0;
+        muteNodeRef.current = muteNode;
+
         ambientMasterRef.current.connect(masterFilter);
-        masterFilter.connect(limiter);
+        masterFilter.connect(muteNode);
+        muteNode.connect(limiter);
         limiter.connect(audioCtx.current.destination);
 
         reverbNodeRef.current = createReverb(audioCtx.current);
@@ -78,9 +84,11 @@ export const AudioProvider = ({ children }) => {
 
     window.addEventListener('click', initAudio, { once: true });
     window.addEventListener('keydown', initAudio, { once: true });
+    window.addEventListener('touchstart', initAudio, { once: true, passive: true });
     return () => {
       window.removeEventListener('click', initAudio);
       window.removeEventListener('keydown', initAudio);
+      window.removeEventListener('touchstart', initAudio);
     };
   }, []);
 
@@ -165,48 +173,50 @@ export const AudioProvider = ({ children }) => {
     setTimeout(() => triggerSwell(1), 7500);
 
     startDrone();
-    if (isEnabled && audioCtx.current) {
+    if (audioCtx.current) {
       ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 3.0);
     }
   };
 
   const triggerSwell = (layer = 0) => {
-    if (!audioCtx.current || !isEnabled) return;
+    if (!audioCtx.current) return;
     
-    const ctx = audioCtx.current;
-    const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
-    
-    const root = currentChord[0] / 2;
-    const fifth = currentChord[1] / 2;
-    
-    [root, fifth].forEach((freq, index) => {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine'; 
-      osc.frequency.value = freq;
+    if (isEnabled) {
+      const ctx = audioCtx.current;
+      const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
       
-      const panner = ctx.createStereoPanner();
-      panner.pan.value = index === 0 ? -0.2 : 0.2;
+      const root = currentChord[0] / 2;
+      const fifth = currentChord[1] / 2;
       
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 4.0); 
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 12.0); 
-      
-      osc.connect(panner);
-      panner.connect(gain);
-      
-      if (reverbNodeRef.current) {
-         gain.connect(reverbNodeRef.current.input);
-      }
-      
-      osc.start();
-      osc.stop(ctx.currentTime + 12.0);
-      osc.onended = () => {
-        osc.disconnect();
-        panner.disconnect();
-        gain.disconnect();
-      };
-    });
+      [root, fifth].forEach((freq, index) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine'; 
+        osc.frequency.value = freq;
+        
+        const panner = ctx.createStereoPanner();
+        panner.pan.value = index === 0 ? -0.2 : 0.2;
+        
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 4.0); 
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 12.0); 
+        
+        osc.connect(panner);
+        panner.connect(gain);
+        
+        if (reverbNodeRef.current) {
+           gain.connect(reverbNodeRef.current.input);
+        }
+        
+        osc.start();
+        osc.stop(ctx.currentTime + 12.0);
+        osc.onended = () => {
+          osc.disconnect();
+          panner.disconnect();
+          gain.disconnect();
+        };
+      });
+    }
 
     const nextTime = 8000 + (Math.random() * 6000);
     clearTimeout(swellIntervals.current[layer]);
@@ -255,7 +265,7 @@ export const AudioProvider = ({ children }) => {
   };
 
   const triggerPing = (layer = 0) => {
-    if (!audioCtx.current || !isEnabled) return;
+    if (!audioCtx.current) return;
     
     const ctx = audioCtx.current;
     const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
@@ -283,11 +293,13 @@ export const AudioProvider = ({ children }) => {
     const octaveMultiplier = multipliers[Math.floor(Math.random() * multipliers.length)];
     const freq = baseNote * octaveMultiplier;
 
-    playGenerativeNote(ctx, freq);
+    if (isEnabled) {
+      playGenerativeNote(ctx, freq);
 
-    if (Math.random() < 0.2) {
-       const clusterFreq = freq * (Math.random() > 0.5 ? 1.5 : 2); 
-       playGenerativeNote(ctx, clusterFreq, 5.0, 0.03); 
+      if (Math.random() < 0.2) {
+         const clusterFreq = freq * (Math.random() > 0.5 ? 1.5 : 2); 
+         playGenerativeNote(ctx, clusterFreq, 5.0, 0.03); 
+      }
     }
     
     state.notesLeftInPhrase -= 1;
@@ -304,11 +316,14 @@ export const AudioProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (audioCtx.current && ambientMasterRef.current) {
+    if (audioCtx.current && muteNodeRef.current) {
+      const now = audioCtx.current.currentTime;
+      muteNodeRef.current.gain.cancelScheduledValues(now);
+      muteNodeRef.current.gain.setValueAtTime(muteNodeRef.current.gain.value, now);
       if (isEnabled) {
-        ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 2.0);
+        muteNodeRef.current.gain.linearRampToValueAtTime(1.0, now + 1.0);
       } else {
-        ambientMasterRef.current.gain.setTargetAtTime(0.001, audioCtx.current.currentTime, 0.3);
+        muteNodeRef.current.gain.linearRampToValueAtTime(0.0, now + 0.1);
       }
     }
   }, [isEnabled]);
@@ -330,8 +345,11 @@ export const AudioProvider = ({ children }) => {
     
     // Duck the ambient music temporarily (Sidechain compression effect)
     if (ambientMasterRef.current) {
-      ambientMasterRef.current.gain.setTargetAtTime(0.4, audioCtx.current.currentTime, 0.05);
-      ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime + duration, 0.5);
+      const now = audioCtx.current.currentTime;
+      ambientMasterRef.current.gain.cancelScheduledValues(now);
+      ambientMasterRef.current.gain.setValueAtTime(ambientMasterRef.current.gain.value, now);
+      ambientMasterRef.current.gain.linearRampToValueAtTime(0.4, now + 0.05);
+      ambientMasterRef.current.gain.linearRampToValueAtTime(1.0, now + duration + 0.5);
     }
     
     const osc = audioCtx.current.createOscillator();

@@ -1,8 +1,16 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const AudioContextData = createContext(null);
 
 export const useAudio = () => useContext(AudioContextData);
+
+const CHORD_MAP = {
+  '/': [65.41, 98.00, 146.83, 261.63], // Csus2 (Ethereal, open)
+  '/portfolio': [87.31, 110.00, 130.81, 196.00], // Fmaj9 (Warm, nostalgic)
+  '/marketing': [110.00, 130.81, 146.83, 196.00], // Am11 (Deep, focused)
+  '/photography': [98.00, 123.47, 146.83, 220.00] // G6/9 (Bright, clear)
+};
 
 export const AudioProvider = ({ children }) => {
   const [isEnabled, setIsEnabled] = useState(true);
@@ -10,6 +18,7 @@ export const AudioProvider = ({ children }) => {
   const ambientMasterRef = useRef(null);
   const scrollFilterRef = useRef(null);
   const oscRefs = useRef([]);
+  const location = useLocation();
 
   // Initialize Web Audio API on first user interaction
   useEffect(() => {
@@ -24,8 +33,8 @@ export const AudioProvider = ({ children }) => {
 
         scrollFilterRef.current = audioCtx.current.createBiquadFilter();
         scrollFilterRef.current.type = 'lowpass';
-        scrollFilterRef.current.frequency.value = 250; // Initial dark, muffled sound
-        scrollFilterRef.current.Q.value = 2; // Slight resonance for glassiness
+        scrollFilterRef.current.frequency.value = 250; 
+        scrollFilterRef.current.Q.value = 1.5; 
         scrollFilterRef.current.connect(ambientMasterRef.current);
 
         // Start Oscillators
@@ -38,7 +47,7 @@ export const AudioProvider = ({ children }) => {
 
     window.addEventListener('click', initAudio, { once: true });
     window.addEventListener('keydown', initAudio, { once: true });
-    window.addEventListener('scroll', initAudio, { once: true }); // Also trigger on scroll
+    window.addEventListener('scroll', initAudio, { once: true }); 
     
     return () => {
       window.removeEventListener('click', initAudio);
@@ -50,50 +59,68 @@ export const AudioProvider = ({ children }) => {
   const startAmbientDrone = () => {
     if (!audioCtx.current || !scrollFilterRef.current) return;
 
-    // Osc 1: Deep fundamental (A2)
-    const osc1 = audioCtx.current.createOscillator();
-    osc1.type = 'sine';
-    osc1.frequency.value = 110.00; 
-
-    // Osc 2: Slightly detuned fundamental for beating effect (Movement/Water)
-    const osc2 = audioCtx.current.createOscillator();
-    osc2.type = 'sine';
-    osc2.frequency.value = 111.5; 
-
-    // Osc 3: High glassy shimmer (A4)
-    const osc3 = audioCtx.current.createOscillator();
-    osc3.type = 'triangle'; // Triangle provides more harmonics for the filter to sweep
-    osc3.frequency.value = 440.00;
-
-    // Mix them
-    const mixGain = audioCtx.current.createGain();
-    mixGain.gain.value = 0.15; // Keep it ambient and background
-
-    osc1.connect(mixGain);
-    osc2.connect(mixGain);
-    osc3.connect(mixGain);
+    const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
     
-    mixGain.connect(scrollFilterRef.current);
+    // We create 4 generative voices
+    const voices = currentChord.map((freq, i) => {
+      const osc = audioCtx.current.createOscillator();
+      osc.type = i === 3 ? 'triangle' : 'sine'; // Highest note gets a triangle for glassy shimmer
+      osc.frequency.value = freq;
 
-    osc1.start();
-    osc2.start();
-    osc3.start();
+      // LFO for volume swelling (non-repetitive breathing)
+      const lfo = audioCtx.current.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.02 + (Math.random() * 0.05); // Very slow, random rate per voice (0.02 to 0.07 Hz)
 
-    oscRefs.current = [osc1, osc2, osc3];
+      // LFO goes from -1 to 1, we scale it to 0 to 0.15 volume range
+      const lfoGain = audioCtx.current.createGain();
+      lfoGain.gain.value = 0.075; 
+      lfo.connect(lfoGain);
 
-    // Fade in if enabled
+      const voiceGain = audioCtx.current.createGain();
+      voiceGain.gain.value = 0.075; // Base volume
+      
+      // Connect LFO output to voiceGain's gain parameter (modulates volume)
+      lfoGain.connect(voiceGain.gain);
+
+      osc.connect(voiceGain);
+      voiceGain.connect(scrollFilterRef.current);
+
+      osc.start();
+      lfo.start();
+      
+      return osc;
+    });
+
+    oscRefs.current = voices;
+
     if (isEnabled) {
-      ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 2.0); // 2 second fade in
+      ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 3.0); // 3 sec fade in
     }
   };
+
+  // Handle Route Changes (Chord shifting)
+  useEffect(() => {
+    if (!audioCtx.current || oscRefs.current.length === 0) return;
+    
+    const targetChord = CHORD_MAP[location.pathname] || CHORD_MAP['/'];
+    const now = audioCtx.current.currentTime;
+    
+    oscRefs.current.forEach((osc, i) => {
+      if (targetChord[i]) {
+        // Smoothly glide to the new note over 4 seconds
+        osc.frequency.setTargetAtTime(targetChord[i], now, 2.0);
+      }
+    });
+  }, [location.pathname]);
 
   // Handle Mute Toggle Fade In/Out
   useEffect(() => {
     if (audioCtx.current && ambientMasterRef.current) {
       if (isEnabled) {
-        ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 1.0);
+        ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 1.5);
       } else {
-        ambientMasterRef.current.gain.setTargetAtTime(0.001, audioCtx.current.currentTime, 1.0);
+        ambientMasterRef.current.gain.setTargetAtTime(0.001, audioCtx.current.currentTime, 1.5);
       }
     }
   }, [isEnabled]);
@@ -103,22 +130,13 @@ export const AudioProvider = ({ children }) => {
     const handleScroll = () => {
       if (!scrollFilterRef.current || !audioCtx.current) return;
       const scrollY = window.scrollY;
-      
-      // Calculate max scroll (can change if DOM changes, so we calculate live safely)
-      const maxScroll = Math.max(
-        document.body.scrollHeight - window.innerHeight, 
-        1 // Prevent divide by zero
-      );
-      
+      const maxScroll = Math.max(document.body.scrollHeight - window.innerHeight, 1);
       const scrollPercent = Math.min(Math.max(scrollY / maxScroll, 0), 1);
       
-      // Filter sweep: 250Hz (deep, muffled) to 2500Hz (bright, glassy)
       const minFreq = 250;
-      const maxFreq = 2500;
-      // Exponential curve feels more natural for audio frequencies
+      const maxFreq = 3000;
       const targetFreq = minFreq * Math.pow(maxFreq / minFreq, scrollPercent);
       
-      // Smoothly glide to the new frequency to avoid zipper noise
       scrollFilterRef.current.frequency.setTargetAtTime(targetFreq, audioCtx.current.currentTime, 0.1);
     };
 
@@ -146,12 +164,9 @@ export const AudioProvider = ({ children }) => {
     osc.stop(audioCtx.current.currentTime + duration);
   };
 
-  const playHoverChime = () => {
-    createOscillator(880, 'sine', 0.4, 0.03);
-  };
+  const playHoverChime = () => createOscillator(880, 'sine', 0.4, 0.03);
 
   const playClickPulse = () => {
-    // Soft, airy ambient droplet for click
     createOscillator(1200, 'sine', 0.15, 0.04); 
     setTimeout(() => createOscillator(1600, 'sine', 0.2, 0.02), 40); 
   };

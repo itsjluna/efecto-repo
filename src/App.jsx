@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import WaveBackground from './components/WaveBackground';
 import Cursor from './components/Cursor';
@@ -18,27 +18,35 @@ function ScrollToTop() {
 }
 
 function App() {
-  // State to track when the cinematic wave reveal finishes
   const [siteVisible, setSiteVisible] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [isMorphing, setIsMorphing] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
-  // Simulate an initial loading phase for the aesthetic
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const handleStart = () => {
+    setIsMorphing(true);
+    setTimeout(() => {
       setIsAppLoading(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
+      setHasStarted(true);
+    }, 800); // Allow morph animation to complete before revealing waves
+  };
 
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <div className="app-container">
         <Cursor />
         
         {/* Loading Overlay */}
         <div className={`loading-overlay ${!isAppLoading ? 'fade-out' : ''}`}>
-          <div className="loading-text">CRYSTALLIZING INTERFACE...</div>
+          {!hasStarted && (
+            <button 
+              className={`see-beyond-start-btn ${isMorphing ? 'morphing' : ''}`} 
+              onClick={handleStart}
+            >
+              [ SEE BEYOND ]
+            </button>
+          )}
         </div>
         
         {/* Global Fixed Wave Background */}
@@ -64,7 +72,7 @@ function App() {
           </Routes>
         </div>
       </div>
-    </Router>
+    </>
   );
 }
 

@@ -20,16 +20,14 @@ function ScrollToTop() {
 function App() {
   const [siteVisible, setSiteVisible] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState(true);
-  const [isMorphing, setIsMorphing] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
 
-  const handleStart = () => {
-    setIsMorphing(true);
-    setTimeout(() => {
+  // Simulate an initial loading phase for the aesthetic
+  useEffect(() => {
+    const timer = setTimeout(() => {
       setIsAppLoading(false);
-      setHasStarted(true);
-    }, 800); // Allow morph animation to complete before revealing waves
-  };
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
@@ -39,14 +37,7 @@ function App() {
         
         {/* Loading Overlay */}
         <div className={`loading-overlay ${!isAppLoading ? 'fade-out' : ''}`}>
-          {!hasStarted && (
-            <button 
-              className={`see-beyond-start-btn ${isMorphing ? 'morphing' : ''}`} 
-              onClick={handleStart}
-            >
-              [ SEE BEYOND ]
-            </button>
-          )}
+          <div className="loading-text">CRYSTALLIZING INTERFACE...</div>
         </div>
         
         {/* Global Fixed Wave Background */}

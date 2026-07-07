@@ -74,6 +74,38 @@
   box-shadow: 0 0 0 3px var(--dynamic-glow, rgba(0,168,255,0.2));
 }
 
+.form-feedback {
+  padding: 0.8rem 1.2rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  animation: fade-in-up 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.form-feedback.success {
+  color: #fff;
+  border-left: 4px solid #00ff88;
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.15);
+}
+
+.form-feedback.error {
+  color: #fff;
+  border-left: 4px solid #ff4444;
+  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.15);
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 900px) {
   .info-grid {
     grid-template-columns: 1fr;

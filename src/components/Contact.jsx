@@ -79,8 +79,16 @@ const Contact = () => {
               <textarea id="message" rows="5" placeholder="Tell us about your visual needs..." value={formData.message} onChange={handleChange} required></textarea>
             </div>
             
-            {status === 'success' && <p style={{ color: '#00ff88', marginBottom: '1rem', fontSize: '0.9rem' }}>Message sent successfully! We'll be in touch soon.</p>}
-            {status === 'error' && <p style={{ color: '#ff4444', marginBottom: '1rem', fontSize: '0.9rem' }}>Something went wrong. Please try again later.</p>}
+            {status === 'success' && (
+              <div className="form-feedback success">
+                Transmission complete. We will be in touch shortly.
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="form-feedback error">
+                Signal disrupted. Please try again.
+              </div>
+            )}
             
             <button type="submit" className="btn btn-primary btn-submit" disabled={status === 'loading'}>
               {status === 'loading' ? 'Sending Request...' : 'Submit Request'}

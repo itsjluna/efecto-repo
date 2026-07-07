@@ -55,8 +55,16 @@ const RegistrationInfo = ({ title, desc, actionText = "Book a Session" }) => {
                 {status === 'loading' ? '...' : 'Subscribe'}
               </button>
             </form>
-            {status === 'success' && <p style={{ color: '#00ff88', marginTop: '0.5rem', fontSize: '0.85rem' }}>Successfully subscribed!</p>}
-            {status === 'error' && <p style={{ color: '#ff4444', marginTop: '0.5rem', fontSize: '0.85rem' }}>Error subscribing.</p>}
+            {status === 'success' && (
+              <div className="form-feedback success">
+                Subscription established.
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="form-feedback error">
+                Connection failed. Try again.
+              </div>
+            )}
           </div>
         </div>
       </div>

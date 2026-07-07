@@ -35,9 +35,9 @@ const Marketing = () => {
       <Header />
       <main style={{ position: 'relative', zIndex: 1 }}>
         <Hero 
-          title="EFECTO MARKETING" 
+          title="DIGITAL & MARKETING" 
           subtitle="DRIVING DIGITAL EXCELLENCE" 
-          info="A cutting-edge agency focused on delivering measurable results and scalable digital infrastructure. From holistic brand management to robust web and mobile development, we engineer your market dominance." 
+          info="A cutting-edge agency focused on delivering measurable results and scalable digital infrastructure. From holistic brand management to robust web and mobile development, we engineer your market dominance across North America." 
         />
         <ServicesList services={marketingServices} title="CORE CAPABILITIES" />
         <RegistrationInfo 

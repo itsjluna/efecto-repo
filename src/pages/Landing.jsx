@@ -20,7 +20,7 @@ const Landing = () => {
             PHOTOGRAPHY
           </Link>
           <Link to="/marketing" className="btn btn-primary landing-btn" onClick={playClickPulse} onMouseEnter={playHoverChime}>
-            MARKETING
+            DIGITAL & MARKETING
           </Link>
         </div>
       </div>

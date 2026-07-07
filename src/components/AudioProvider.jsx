@@ -18,6 +18,7 @@ export const AudioProvider = ({ children }) => {
   const ambientMasterRef = useRef(null);
   const reverbNodeRef = useRef(null);
   const pingIntervalRef = useRef(null);
+  const swellIntervalRef = useRef(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -92,9 +93,45 @@ export const AudioProvider = ({ children }) => {
 
   const startGenerativeEngine = () => {
     triggerPing();
+    triggerSwell();
     if (isEnabled && audioCtx.current) {
       ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 3.0);
     }
+  };
+
+  const triggerSwell = () => {
+    if (!audioCtx.current || !isEnabled) return;
+    
+    const ctx = audioCtx.current;
+    const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
+    
+    // Play root and fifth down an octave to create a warm, deep bed
+    const root = currentChord[0] / 2;
+    const fifth = currentChord[1] / 2;
+    
+    [root, fifth].forEach(freq => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine'; // Pure, warm tone
+      osc.frequency.value = freq;
+      
+      const gain = ctx.createGain();
+      // Massive, slow breath envelope: 4s fade in, 8s fade out
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 4.0); 
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 12.0); 
+      
+      osc.connect(gain);
+      if (reverbNodeRef.current) {
+         gain.connect(reverbNodeRef.current.input);
+      }
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 12.0);
+    });
+
+    // Swells happen every 8 to 14 seconds (overlapping slightly for a breathing effect)
+    const nextTime = 8000 + (Math.random() * 6000);
+    swellIntervalRef.current = setTimeout(triggerSwell, nextTime);
   };
 
   const triggerPing = () => {

@@ -74,7 +74,7 @@
 
 /* Page Transition Wrapper */
 .page-transition-wrapper {
-  animation: pageEnter 1.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+  animation: pageEnter 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
   height: 100%;
   width: 100%;
 }
@@ -84,9 +84,13 @@
     opacity: 0;
     transform: translateY(20px) scale(0.98);
   }
-  100% {
+  99% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
   }
 }
 

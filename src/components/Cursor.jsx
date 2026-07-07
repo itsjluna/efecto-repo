@@ -6,13 +6,18 @@ const Cursor = () => {
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
-    const checkIsDesktop = () => setIsDesktop(window.innerWidth > 768);
-    window.addEventListener('resize', checkIsDesktop);
+    const checkTouch = () => {
+      const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsTouchDevice(isTouch);
+    };
+    
+    checkTouch(); // Initial check
+    window.addEventListener('resize', checkTouch);
 
-    if (!isDesktop) return; // Don't attach listeners on mobile
+    if (isTouchDevice) return; // Don't attach listeners on touch devices
 
     const moveCursor = (e) => {
       if (!visible) setVisible(true);
@@ -46,7 +51,7 @@ const Cursor = () => {
     document.addEventListener('mouseenter', handleMouseEnter);
 
     return () => {
-      window.removeEventListener('resize', checkIsDesktop);
+      window.removeEventListener('resize', checkTouch);
       window.removeEventListener('mousemove', moveCursor);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
@@ -54,9 +59,9 @@ const Cursor = () => {
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
     };
-  }, [visible, isDesktop]);
+  }, [visible, isTouchDevice]);
 
-  if (!isDesktop || !visible) return null;
+  if (isTouchDevice || !visible) return null;
 
   return (
     <div 

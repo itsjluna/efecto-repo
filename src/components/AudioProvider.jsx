@@ -6,10 +6,10 @@ const AudioContextData = createContext(null);
 export const useAudio = () => useContext(AudioContextData);
 
 const CHORD_MAP = {
-  '/': [130.81, 196.00, 261.63, 392.00], // Csus2 notes (C3, G3, C4, G4)
-  '/portfolio': [174.61, 220.00, 261.63, 329.63], // Fmaj9 notes (F3, A3, C4, E4)
-  '/marketing': [220.00, 261.63, 293.66, 392.00], // Am11 notes (A3, C4, D4, G4)
-  '/photography': [196.00, 246.94, 293.66, 440.00] // G6/9 notes (G3, B3, D4, A4)
+  '/': [130.81, 196.00, 261.63, 392.00], 
+  '/portfolio': [174.61, 220.00, 261.63, 329.63], 
+  '/marketing': [220.00, 261.63, 293.66, 392.00], 
+  '/photography': [196.00, 246.94, 293.66, 440.00] 
 };
 
 export const AudioProvider = ({ children }) => {
@@ -17,7 +17,6 @@ export const AudioProvider = ({ children }) => {
   const audioCtx = useRef(null);
   const ambientMasterRef = useRef(null);
   const reverbNodeRef = useRef(null);
-  const droneOscRef = useRef(null);
   const pingIntervalRef = useRef(null);
   const location = useLocation();
 
@@ -26,7 +25,6 @@ export const AudioProvider = ({ children }) => {
       if (!audioCtx.current) {
         audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Master Gain
         ambientMasterRef.current = audioCtx.current.createGain();
         ambientMasterRef.current.gain.value = 0; 
 
@@ -44,7 +42,6 @@ export const AudioProvider = ({ children }) => {
         masterFilter.connect(limiter);
         limiter.connect(audioCtx.current.destination);
 
-        // Schroeder Reverb
         reverbNodeRef.current = createReverb(audioCtx.current);
         reverbNodeRef.current.output.connect(ambientMasterRef.current);
 
@@ -67,9 +64,7 @@ export const AudioProvider = ({ children }) => {
     const input = ctx.createGain();
     const output = ctx.createGain();
     
-    // Schroeder delays (prime-ish)
     const delays = [0.0297, 0.0371, 0.0411, 0.0437];
-    // Long feedback for huge space
     const feedbacks = [0.62, 0.58, 0.55, 0.5]; 
 
     delays.forEach((dTime, i) => {
@@ -81,7 +76,7 @@ export const AudioProvider = ({ children }) => {
       
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.value = 900; // Dampen highs for smoother tail
+      filter.frequency.value = 900; 
       
       input.connect(delay);
       delay.connect(filter);
@@ -91,50 +86,14 @@ export const AudioProvider = ({ children }) => {
       delay.connect(output);
     });
     
-    // Dry signal mix
     input.connect(output);
-    
     return { input, output };
   };
 
   const startGenerativeEngine = () => {
-    const ctx = audioCtx.current;
-    
-    // 1. The Sub-Drone (Foundation)
-    const drone = ctx.createOscillator();
-    drone.type = 'sine';
-    drone.frequency.value = 65.41; // Deep C2
-    
-    const droneGain = ctx.createGain();
-    droneGain.gain.value = 0; // modulated by LFO
-    
-    const droneOffset = ctx.createConstantSource();
-    droneOffset.offset.value = 0.1; // base drone level
-    droneOffset.connect(droneGain.gain);
-    droneOffset.start();
-    
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.05; // 20-second cycle
-    
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.06; // now swings 0.04-0.16, always positive
-    
-    lfo.connect(lfoGain);
-    lfoGain.connect(droneGain.gain);
-    
-    drone.connect(droneGain);
-    droneGain.connect(ambientMasterRef.current); // Drone bypasses reverb to stay clean
-    
-    drone.start();
-    lfo.start();
-    droneOscRef.current = drone;
-
-    // 2. The Ping Sequencer
     triggerPing();
-    
-    if (isEnabled) {
-      ambientMasterRef.current.gain.setTargetAtTime(1.0, ctx.currentTime, 3.0);
+    if (isEnabled && audioCtx.current) {
+      ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 3.0);
     }
   };
 
@@ -144,7 +103,6 @@ export const AudioProvider = ({ children }) => {
     const ctx = audioCtx.current;
     const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
     
-    // Random note from chord, spread across octaves
     const note = currentChord[Math.floor(Math.random() * currentChord.length)];
     const multipliers = [1, 2, 2, 4];
     const octaveMultiplier = multipliers[Math.floor(Math.random() * multipliers.length)];
@@ -155,14 +113,12 @@ export const AudioProvider = ({ children }) => {
     osc.frequency.value = freq;
     
     const gain = ctx.createGain();
-    // Fast attack, very slow exponential decay (striking glass)
     gain.gain.setValueAtTime(0, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.05);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 4.0);
     
     osc.connect(gain);
     
-    // Connect ping to Reverb input
     if (reverbNodeRef.current) {
        gain.connect(reverbNodeRef.current.input);
     }
@@ -170,8 +126,8 @@ export const AudioProvider = ({ children }) => {
     osc.start();
     osc.stop(ctx.currentTime + 4.0);
     
-    // Schedule next ping (Maximum minimalism: 4 to 8 seconds)
-    const nextTime = 4000 + (Math.random() * 4000);
+    // Increased frequency slightly since we removed the drone foundation
+    const nextTime = 3000 + (Math.random() * 3000);
     pingIntervalRef.current = setTimeout(triggerPing, nextTime);
   };
 
@@ -184,13 +140,6 @@ export const AudioProvider = ({ children }) => {
       }
     }
   }, [isEnabled]);
-
-  // Route change: Glide drone to new root note
-  useEffect(() => {
-    if (!droneOscRef.current || !audioCtx.current) return;
-    const chord = CHORD_MAP[location.pathname] || CHORD_MAP['/'];
-    droneOscRef.current.frequency.setTargetAtTime(chord[0] / 2, audioCtx.current.currentTime, 2.0);
-  }, [location.pathname]);
 
   const createOscillator = (freq, type, duration, gainValue = 0.1) => {
     if (!isEnabled || !audioCtx.current) return;
@@ -236,3 +185,5 @@ export const AudioProvider = ({ children }) => {
     </AudioContextData.Provider>
   );
 };
+
+

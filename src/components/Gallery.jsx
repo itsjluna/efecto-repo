@@ -28,7 +28,7 @@ const ProgressiveImage = React.memo(({ src, alt, title, id }) => {
       </div>
     </>
   );
-};
+});
 
 const Gallery = React.memo(({ items }) => {
   const galleryRef = useRef(null);
@@ -108,6 +108,6 @@ const Gallery = React.memo(({ items }) => {
       </div>
     </section>
   );
-};
+});
 
 export default Gallery;

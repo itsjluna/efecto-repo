@@ -68,7 +68,7 @@
   filter: blur(2px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .landing-options {
     flex-direction: column;
     gap: 2rem;
@@ -78,5 +78,7 @@
   
   .landing-btn {
     width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
   }
 }

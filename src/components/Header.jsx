@@ -79,7 +79,8 @@ const Header = () => {
         
         {!isMobile && (
           <a href="tel:+15044534617" className="nav-cta" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
-            Let's Talk
+            <span className="nav-cta-text">Let's Talk</span>
+            <Phone className="nav-cta-icon" size={18} strokeWidth={2} />
           </a>
         )}
       </header>

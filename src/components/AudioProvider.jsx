@@ -308,7 +308,7 @@ export const AudioProvider = ({ children }) => {
       if (isEnabled) {
         ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 2.0);
       } else {
-        ambientMasterRef.current.gain.setTargetAtTime(0.001, audioCtx.current.currentTime, 2.0);
+        ambientMasterRef.current.gain.setTargetAtTime(0.001, audioCtx.current.currentTime, 0.3);
       }
     }
   }, [isEnabled]);

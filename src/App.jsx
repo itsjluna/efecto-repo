@@ -5,9 +5,11 @@ import WaveBackground from './components/WaveBackground';
 import Cursor from './components/Cursor';
 import Header from './components/Header';
 import Landing from './pages/Landing';
-import Photography from './pages/Photography';
-import Marketing from './pages/Marketing';
-import Portfolio from './pages/Portfolio';
+
+// Lazy load routes for optimal bundle splitting
+const Photography = React.lazy(() => import('./pages/Photography'));
+const Marketing = React.lazy(() => import('./pages/Marketing'));
+const Portfolio = React.lazy(() => import('./pages/Portfolio'));
 
 // Component to handle scrolling to top on route change
 function ScrollToTop() {
@@ -70,12 +72,14 @@ function App() {
         >
           {location.pathname !== '/' && <Header />}
           <div key={location.pathname} className="page-transition-wrapper">
-            <Routes location={location}>
-              <Route path="/" element={<Landing />} />
-              <Route path="/photography" element={<Photography />} />
-              <Route path="/marketing" element={<Marketing />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-            </Routes>
+            <Suspense fallback={<div style={{ height: '100vh', width: '100vw' }} />}>
+              <Routes location={location}>
+                <Route path="/" element={<Landing />} />
+                <Route path="/photography" element={<Photography />} />
+                <Route path="/marketing" element={<Marketing />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+              </Routes>
+            </Suspense>
           </div>
         </div>
       </div>

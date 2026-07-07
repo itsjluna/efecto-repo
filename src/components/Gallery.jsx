@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Gallery.css';
 
-const ProgressiveImage = ({ src, alt, title, id }) => {
+const ProgressiveImage = React.memo(({ src, alt, title, id }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
@@ -30,7 +30,7 @@ const ProgressiveImage = ({ src, alt, title, id }) => {
   );
 };
 
-const Gallery = ({ items }) => {
+const Gallery = React.memo(({ items }) => {
   const galleryRef = useRef(null);
   const itemRefs = useRef([]);
 

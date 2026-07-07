@@ -20,9 +20,9 @@ export const AudioProvider = ({ children }) => {
   const echoDelayRef = useRef(null);
   const pingIntervalRef = useRef(null);
   const swellIntervalRef = useRef(null);
+  const droneRef = useRef({ oscs: [], filter: null });
   const location = useLocation();
 
-  // Melody Sequencer State
   const seqState = useRef({
     notesLeftInPhrase: 0,
     lastNoteIndex: 0
@@ -50,26 +50,23 @@ export const AudioProvider = ({ children }) => {
         masterFilter.connect(limiter);
         limiter.connect(audioCtx.current.destination);
 
-        // Schroeder Reverb
         reverbNodeRef.current = createReverb(audioCtx.current);
         reverbNodeRef.current.output.connect(ambientMasterRef.current);
 
-        // Dedicated Echo (Delays before hitting Reverb)
         const echo = audioCtx.current.createDelay(2.0);
-        echo.delayTime.value = 0.85; // Distinct, long canyon echo
+        echo.delayTime.value = 0.85; 
         
         const echoFeedback = audioCtx.current.createGain();
-        echoFeedback.gain.value = 0.45; // Amount of echo repeats
+        echoFeedback.gain.value = 0.45; 
         
         const echoFilter = audioCtx.current.createBiquadFilter();
         echoFilter.type = 'lowpass';
-        echoFilter.frequency.value = 1500; // Echos get muffled
+        echoFilter.frequency.value = 1500; 
         
         echo.connect(echoFilter);
         echoFilter.connect(echoFeedback);
         echoFeedback.connect(echo);
         
-        // Output of echo routes entirely into the Reverb to sit in the same space
         echo.connect(reverbNodeRef.current.input);
         echoDelayRef.current = echo;
 
@@ -118,9 +115,51 @@ export const AudioProvider = ({ children }) => {
     return { input, output };
   };
 
+  const startDrone = () => {
+    const ctx = audioCtx.current;
+    if (!ctx) return;
+    
+    const chord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
+    const root = chord[0] / 4; // deep octave
+
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0;
+    droneGain.gain.setTargetAtTime(0.05, ctx.currentTime, 4.0);
+
+    const droneFilter = ctx.createBiquadFilter();
+    droneFilter.type = 'lowpass';
+    droneFilter.frequency.value = 400;
+
+    [0, 7].forEach(detune => { 
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = root;
+      osc.detune.value = detune;
+      osc.connect(droneFilter);
+      osc.start();
+      droneRef.current.oscs.push(osc);
+    });
+
+    // Slow filter LFO for movement ("breathing")
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.02; // ~50s cycle
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 150;
+    
+    lfo.connect(lfoGain);
+    lfoGain.connect(droneFilter.frequency);
+    lfo.start();
+
+    droneFilter.connect(droneGain);
+    droneGain.connect(ambientMasterRef.current);
+    droneRef.current.filter = droneFilter;
+  };
+
   const startGenerativeEngine = () => {
     triggerPing();
     triggerSwell();
+    startDrone();
     if (isEnabled && audioCtx.current) {
       ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime, 3.0);
     }
@@ -135,47 +174,79 @@ export const AudioProvider = ({ children }) => {
     const root = currentChord[0] / 2;
     const fifth = currentChord[1] / 2;
     
-    [root, fifth].forEach(freq => {
+    [root, fifth].forEach((freq, index) => {
       const osc = ctx.createOscillator();
       osc.type = 'sine'; 
       osc.frequency.value = freq;
+      
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = index === 0 ? -0.2 : 0.2;
       
       const gain = ctx.createGain();
       gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 4.0); 
       gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 12.0); 
       
-      osc.connect(gain);
+      osc.connect(panner);
+      panner.connect(gain);
+      
       if (reverbNodeRef.current) {
          gain.connect(reverbNodeRef.current.input);
       }
       
       osc.start();
       osc.stop(ctx.currentTime + 12.0);
+      osc.onended = () => {
+        osc.disconnect();
+        panner.disconnect();
+        gain.disconnect();
+      };
     });
 
     const nextTime = 8000 + (Math.random() * 6000);
+    clearTimeout(swellIntervalRef.current);
     swellIntervalRef.current = setTimeout(triggerSwell, nextTime);
   };
 
   const playGenerativeNote = (ctx, freq, decayTime = 4.0, volume = 0.06) => {
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.05);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + decayTime);
+
+    // Gentle per-note lowpass so higher octaves don't sound glassy/harsh
+    const voiceFilter = ctx.createBiquadFilter();
+    voiceFilter.type = 'lowpass';
+    voiceFilter.frequency.value = freq < 800 ? 6000 : 3200;
+    voiceFilter.Q.value = 0.3;
+
+    // Unison: 2 detuned oscillators, panned apart, for warmth/width
+    const detunes = [-6, 6]; 
+    const pans = [-0.35, 0.35];
     
-    osc.connect(gain);
+    detunes.forEach((cents, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.detune.value = cents;
+
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = pans[i];
+
+      osc.connect(panner);
+      panner.connect(voiceFilter);
+      osc.start();
+      osc.stop(ctx.currentTime + decayTime);
+      osc.onended = () => { 
+        osc.disconnect(); 
+        panner.disconnect(); 
+      };
+    });
+
+    voiceFilter.connect(gain);
     
-    // Connect to both Reverb and Echo networks
     if (reverbNodeRef.current) gain.connect(reverbNodeRef.current.input);
     if (echoDelayRef.current) gain.connect(echoDelayRef.current);
-
-    osc.start();
-    osc.stop(ctx.currentTime + decayTime);
   };
 
   const triggerPing = () => {
@@ -185,22 +256,17 @@ export const AudioProvider = ({ children }) => {
     const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
     const maxIndex = currentChord.length - 1;
     
-    // Check if we need to start a new phrase
     if (seqState.current.notesLeftInPhrase <= 0) {
-      seqState.current.notesLeftInPhrase = Math.floor(Math.random() * 3) + 2; // Phrase length: 2 to 4 notes
+      seqState.current.notesLeftInPhrase = Math.floor(Math.random() * 3) + 2; 
     }
 
-    // Melodic Walk: 70% chance to step logically, 30% to jump
     let nextIndex = seqState.current.lastNoteIndex;
     if (Math.random() < 0.7) {
-       // Step up or down by 1
        const step = Math.random() > 0.5 ? 1 : -1;
        nextIndex += step;
-       // Boundary checks
        if (nextIndex < 0) nextIndex = 1;
        if (nextIndex > maxIndex) nextIndex = maxIndex - 1;
     } else {
-       // Jump randomly
        nextIndex = Math.floor(Math.random() * currentChord.length);
     }
     
@@ -211,24 +277,20 @@ export const AudioProvider = ({ children }) => {
     const octaveMultiplier = multipliers[Math.floor(Math.random() * multipliers.length)];
     const freq = baseNote * octaveMultiplier;
 
-    // Play main note
     playGenerativeNote(ctx, freq);
 
-    // Harmonic Depth: 20% chance to play a cluster (perfect fifth or octave)
     if (Math.random() < 0.2) {
-       const clusterFreq = freq * (Math.random() > 0.5 ? 1.5 : 2); // 1.5 = Fifth, 2 = Octave
-       playGenerativeNote(ctx, clusterFreq, 5.0, 0.03); // slightly longer decay, softer
+       const clusterFreq = freq * (Math.random() > 0.5 ? 1.5 : 2); 
+       playGenerativeNote(ctx, clusterFreq, 5.0, 0.03); 
     }
     
     seqState.current.notesLeftInPhrase -= 1;
     
     let nextTime;
     if (seqState.current.notesLeftInPhrase > 0) {
-      // Notes inside a phrase happen close together
       nextTime = 1200 + (Math.random() * 1500); 
     } else {
-      // Phrase finished. Take a massive breath before the next phrase.
-      nextTime = 6000 + (Math.random() * 6000); // 6 to 12 seconds of silence
+      nextTime = 6000 + (Math.random() * 6000); 
     }
 
     pingIntervalRef.current = setTimeout(triggerPing, nextTime);
@@ -243,6 +305,17 @@ export const AudioProvider = ({ children }) => {
       }
     }
   }, [isEnabled]);
+
+  // React to route changes: glide drone root + retrigger a swell
+  useEffect(() => {
+    if (!audioCtx.current || !droneRef.current.oscs.length) return;
+    const chord = CHORD_MAP[location.pathname] || CHORD_MAP['/'];
+    const newRoot = chord[0] / 4;
+    droneRef.current.oscs.forEach(osc =>
+      osc.frequency.setTargetAtTime(newRoot, audioCtx.current.currentTime, 3.0)
+    );
+    triggerSwell();
+  }, [location.pathname]);
 
   const createOscillator = (freq, type, duration, gainValue = 0.1) => {
     if (!isEnabled || !audioCtx.current) return;
@@ -262,6 +335,10 @@ export const AudioProvider = ({ children }) => {
     
     osc.start();
     osc.stop(audioCtx.current.currentTime + duration);
+    osc.onended = () => {
+      osc.disconnect();
+      gainNode.disconnect();
+    };
   };
 
   const playHoverChime = () => createOscillator(880, 'sine', 0.4, 0.03);

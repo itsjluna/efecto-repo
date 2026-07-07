@@ -328,6 +328,12 @@ export const AudioProvider = ({ children }) => {
   const createOscillator = (freq, type, duration, gainValue = 0.1) => {
     if (!isEnabled || !audioCtx.current) return;
     
+    // Duck the ambient music temporarily (Sidechain compression effect)
+    if (ambientMasterRef.current) {
+      ambientMasterRef.current.gain.setTargetAtTime(0.4, audioCtx.current.currentTime, 0.05);
+      ambientMasterRef.current.gain.setTargetAtTime(1.0, audioCtx.current.currentTime + duration, 0.5);
+    }
+    
     const osc = audioCtx.current.createOscillator();
     const gainNode = audioCtx.current.createGain();
     
@@ -349,18 +355,18 @@ export const AudioProvider = ({ children }) => {
     };
   };
 
-  const playHoverChime = () => createOscillator(880, 'sine', 0.4, 0.03);
+  const playHoverChime = () => createOscillator(880, 'sine', 0.4, 0.06);
 
   const playClickPulse = () => {
-    createOscillator(1200, 'sine', 0.15, 0.04); 
-    setTimeout(() => createOscillator(1600, 'sine', 0.2, 0.02), 40); 
+    createOscillator(1200, 'sine', 0.15, 0.08); 
+    setTimeout(() => createOscillator(1600, 'sine', 0.2, 0.04), 40); 
   };
 
   const playSuccessTrill = () => {
     if (!isEnabled || !audioCtx.current) return;
     [440, 554.37, 659.25, 880].forEach((freq, i) => {
       setTimeout(() => {
-        createOscillator(freq, 'sine', 1.0, 0.04);
+        createOscillator(freq, 'sine', 1.0, 0.08);
       }, i * 80);
     });
   };

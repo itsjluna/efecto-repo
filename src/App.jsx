@@ -10,6 +10,7 @@ import Landing from './pages/Landing';
 const Photography = React.lazy(() => import('./pages/Photography'));
 const Marketing = React.lazy(() => import('./pages/Marketing'));
 const Portfolio = React.lazy(() => import('./pages/Portfolio'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Component to handle scrolling to top on route change
 function ScrollToTop() {
@@ -22,13 +23,21 @@ function ScrollToTop() {
 
 function App() {
   const location = useLocation();
+  const validPaths = ['/', '/photography', '/marketing', '/portfolio'];
+  const isValidRoute = validPaths.includes(location.pathname);
+  
+  const introSeen = sessionStorage.getItem('efecto_intro_seen') === 'true';
+  const shouldSkipIntro = !isValidRoute || introSeen;
+  
   const [siteVisible, setSiteVisible] = useState(false);
-  const [isAppLoading, setIsAppLoading] = useState(true);
-  const [isMorphing, setIsMorphing] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
+  // Skip the 'SEE BEYOND' intro if we are landing directly on a 404 page or if already seen this session
+  const [isAppLoading, setIsAppLoading] = useState(!shouldSkipIntro);
+  const [isMorphing, setIsMorphing] = useState(shouldSkipIntro);
+  const [hasStarted, setHasStarted] = useState(shouldSkipIntro);
 
   const handleStart = () => {
     setIsMorphing(true);
+    sessionStorage.setItem('efecto_intro_seen', 'true');
     setTimeout(() => {
       setIsAppLoading(false);
       setHasStarted(true);
@@ -70,7 +79,7 @@ function App() {
             width: '100%'
           }}
         >
-          {location.pathname !== '/' && <Header />}
+          {location.pathname !== '/' && isValidRoute && <Header />}
           <div key={location.pathname} className="page-transition-wrapper">
             <Suspense fallback={<div style={{ height: '100vh', width: '100vw' }} />}>
               <Routes location={location}>
@@ -78,6 +87,7 @@ function App() {
                 <Route path="/photography" element={<Photography />} />
                 <Route path="/marketing" element={<Marketing />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </div>

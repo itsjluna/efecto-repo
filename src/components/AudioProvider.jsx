@@ -185,6 +185,7 @@ export const AudioProvider = ({ children }) => {
     if (isEnabled) {
       const ctx = audioCtx.current;
       const currentChord = CHORD_MAP[window.location.pathname] || CHORD_MAP['/'];
+      const isWeddings = window.location.pathname === '/weddings';
       
       const root = currentChord[0] / 2;
       const fifth = currentChord[1] / 2;
@@ -199,8 +200,8 @@ export const AudioProvider = ({ children }) => {
         
         const gain = ctx.createGain();
         gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 4.0); 
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 12.0); 
+        gain.gain.linearRampToValueAtTime(0.03 * (isWeddings ? 0.6 : 1.0), ctx.currentTime + (isWeddings ? 6.0 : 4.0)); 
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (isWeddings ? 16.0 : 12.0)); 
         
         osc.connect(panner);
         panner.connect(gain);
@@ -219,7 +220,8 @@ export const AudioProvider = ({ children }) => {
       });
     }
 
-    const nextTime = 8000 + (Math.random() * 6000);
+    const isWeddings = window.location.pathname === '/weddings';
+    const nextTime = (8000 + (Math.random() * 6000)) * (isWeddings ? 2.0 : 1.0);
     clearTimeout(swellIntervals.current[layer]);
     swellIntervals.current[layer] = setTimeout(() => triggerSwell(layer), nextTime);
   };
@@ -294,12 +296,15 @@ export const AudioProvider = ({ children }) => {
     const octaveMultiplier = multipliers[Math.floor(Math.random() * multipliers.length)];
     const freq = baseNote * octaveMultiplier;
 
+    const isWeddings = window.location.pathname === '/weddings';
+    const volMultiplier = isWeddings ? 0.6 : 1.0;
+
     if (isEnabled) {
-      playGenerativeNote(ctx, freq);
+      playGenerativeNote(ctx, freq, 4.0, 0.06 * volMultiplier);
 
       if (Math.random() < 0.2) {
          const clusterFreq = freq * (Math.random() > 0.5 ? 1.5 : 2); 
-         playGenerativeNote(ctx, clusterFreq, 5.0, 0.03); 
+         playGenerativeNote(ctx, clusterFreq, 5.0, 0.03 * volMultiplier); 
       }
     }
     
@@ -311,6 +316,7 @@ export const AudioProvider = ({ children }) => {
     } else {
       nextTime = 6000 + (Math.random() * 6000); 
     }
+    nextTime *= (isWeddings ? 1.8 : 1.0);
 
     clearTimeout(pingIntervals.current[layer]);
     pingIntervals.current[layer] = setTimeout(() => triggerPing(layer), nextTime);

@@ -40,7 +40,7 @@ const Header = () => {
 
   return (
     <div className={`header-wrapper ${scrolled ? 'scrolled' : ''}`}>
-      <header className="header">
+      <header className={`header ${isWeddings ? 'header-weddings' : ''}`}>
         {(!isMobile || isWeddings) && (
           isWeddings ? (
             <a href="#top" className="logo" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>EFECTO</a>

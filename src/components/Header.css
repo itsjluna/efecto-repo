@@ -30,6 +30,15 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
 }
 
+.header-weddings {
+  justify-content: center;
+  gap: 2rem;
+}
+
+.header-weddings .nav-links {
+  flex: 0 0 auto;
+}
+
 .logo {
   font-weight: 700;
   font-size: 1.25rem;

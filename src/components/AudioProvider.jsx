@@ -9,7 +9,8 @@ const CHORD_MAP = {
   '/': [130.81, 196.00, 261.63, 392.00], 
   '/portfolio': [174.61, 220.00, 261.63, 329.63], 
   '/marketing': [220.00, 261.63, 293.66, 392.00], 
-  '/photography': [196.00, 246.94, 293.66, 440.00] 
+  '/photography': [196.00, 246.94, 293.66, 440.00],
+  '/weddings': [261.63, 329.63, 392.00, 523.25] // C Major (romantic, bright, calm)
 };
 
 export const AudioProvider = ({ children }) => {

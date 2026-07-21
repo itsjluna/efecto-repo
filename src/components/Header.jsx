@@ -28,6 +28,7 @@ const Header = () => {
   }, []);
 
   const isPortfolio = location.pathname === '/portfolio';
+  const isWeddings = location.pathname === '/weddings';
 
   const handleLinkClick = () => {
     playClickPulse();
@@ -40,31 +41,41 @@ const Header = () => {
   return (
     <div className={`header-wrapper ${scrolled ? 'scrolled' : ''}`}>
       <header className="header">
-        {!isMobile && <Link to="/" className="logo" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>EFECTO</Link>}
+        {(!isMobile || isWeddings) && (
+          isWeddings ? (
+            <a href="#top" className="logo" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>EFECTO</a>
+          ) : (
+            <Link to="/" className="logo" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>EFECTO</Link>
+          )
+        )}
         
         <nav className="nav-links">
-          {isMobile && (
-            <Link to="/" title="Main Menu" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
-              <Home size={22} strokeWidth={1.5} />
-            </Link>
-          )}
-          
-          <a href={isPortfolio ? "#partners" : "#services"} title={isPortfolio ? "Partners" : "Services"} onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
-            {isMobile ? <Sparkles size={22} strokeWidth={1.5} /> : (isPortfolio ? 'Partners' : 'Services')}
-          </a>
-          
-          <a href="#gallery" title={isPortfolio ? "Archive" : "Gallery"} onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
-            {isMobile ? <Image size={22} strokeWidth={1.5} /> : (isPortfolio ? 'Archive' : 'Gallery')}
-          </a>
-          
-          <a href="#contact" title="Contact" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
-            {isMobile ? <Mail size={22} strokeWidth={1.5} /> : 'Contact'}
-          </a>
+          {!isWeddings && (
+            <>
+              {isMobile && (
+                <Link to="/" title="Main Menu" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
+                  <Home size={22} strokeWidth={1.5} />
+                </Link>
+              )}
+              
+              <a href={isPortfolio ? "#partners" : "#services"} title={isPortfolio ? "Partners" : "Services"} onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
+                {isMobile ? <Sparkles size={22} strokeWidth={1.5} /> : (isPortfolio ? 'Partners' : 'Services')}
+              </a>
+              
+              <a href="#gallery" title={isPortfolio ? "Archive" : "Gallery"} onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
+                {isMobile ? <Image size={22} strokeWidth={1.5} /> : (isPortfolio ? 'Archive' : 'Gallery')}
+              </a>
+              
+              <a href="#contact" title="Contact" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
+                {isMobile ? <Mail size={22} strokeWidth={1.5} /> : 'Contact'}
+              </a>
 
-          {isMobile && (
-            <a href="tel:+15044534617" title="Call Us" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
-              <Phone size={22} strokeWidth={1.5} />
-            </a>
+              {isMobile && (
+                <a href="tel:+15044534617" title="Call Us" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
+                  <Phone size={22} strokeWidth={1.5} />
+                </a>
+              )}
+            </>
           )}
           
           <button 
@@ -77,7 +88,7 @@ const Header = () => {
           </button>
         </nav>
         
-        {!isMobile && (
+        {!isMobile && !isWeddings && (
           <a href="tel:+15044534617" className="nav-cta" onClick={handleLinkClick} onMouseEnter={handleLinkHover}>
             <span className="nav-cta-text">Let's Talk</span>
             <Phone className="nav-cta-icon" size={18} strokeWidth={2} />

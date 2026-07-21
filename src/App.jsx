@@ -10,6 +10,7 @@ import Landing from './pages/Landing';
 const Photography = React.lazy(() => import('./pages/Photography'));
 const Marketing = React.lazy(() => import('./pages/Marketing'));
 const Portfolio = React.lazy(() => import('./pages/Portfolio'));
+const Weddings = React.lazy(() => import('./pages/Weddings'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Component to handle scrolling to top on route change
@@ -23,7 +24,7 @@ function ScrollToTop() {
 
 function App() {
   const location = useLocation();
-  const validPaths = ['/', '/photography', '/marketing', '/portfolio'];
+  const validPaths = ['/', '/photography', '/marketing', '/portfolio', '/weddings'];
   const isValidRoute = validPaths.includes(location.pathname);
   
   const introSeen = sessionStorage.getItem('efecto_intro_seen') === 'true';
@@ -87,6 +88,7 @@ function App() {
                 <Route path="/photography" element={<Photography />} />
                 <Route path="/marketing" element={<Marketing />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/weddings" element={<Weddings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

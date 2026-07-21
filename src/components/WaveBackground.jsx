@@ -23,6 +23,11 @@ const PALETTES = {
     base: new THREE.Color(0.15, 0.05, 0.35),
     accent: new THREE.Color(0.3, 0.1, 0.6),
     highlight: new THREE.Color(0.6, 0.6, 0.75)
+  },
+  '/weddings': { // Ethereal Romantic
+    base: new THREE.Color(0.85, 0.65, 0.7),
+    accent: new THREE.Color(0.95, 0.85, 0.65),
+    highlight: new THREE.Color(1.0, 0.95, 0.95)
   }
 };
 
